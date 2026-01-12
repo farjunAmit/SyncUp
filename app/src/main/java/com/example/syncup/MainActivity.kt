@@ -4,13 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.syncup.data.repository.group.InMemoryGroupsRepository
+import com.example.syncup.ui.group.GroupsScreen
+import com.example.syncup.ui.group.GroupsViewModel
 import com.example.syncup.ui.theme.SyncUpTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,11 +21,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SyncUpTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val repo = InMemoryGroupsRepository()
+                val viewModel = GroupsViewModel(repo)
+                Scaffold{innerPadding ->
+                    GroupsScreen(viewModel, modifier = Modifier.padding(innerPadding))
                 }
             }
         }
