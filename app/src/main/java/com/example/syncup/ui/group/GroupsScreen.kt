@@ -2,6 +2,8 @@ package com.example.syncup.ui.group
 
 import android.R.attr.text
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,12 +19,15 @@ import com.example.syncup.ui.group.components.GroupItem.GroupItem
 @Composable
 fun GroupsScreen(viewModel: GroupsViewModel, modifier: Modifier = Modifier) {
     val state = viewModel.uiState.collectAsState().value
-    Column (modifier = modifier){
-        Button(
-            onClick = { viewModel.addGroup("new Group") }) {
-            Text("Add Group")
-        }
+    Column(modifier = modifier.padding(16.dp))
+    {
+        Spacer(Modifier.height(12.dp))
         Text("Group: ${state.groups.size}")
-        GroupGrid(state.groups,{groupId -> {"here will be group click"}},{groupId -> viewModel.deleteGroup(groupId)}, modifier)
+        GroupGrid(
+            state.groups,
+            { groupId -> { /*Todo: here will be group click - navigate to group screen */ } },
+            { groupId -> viewModel.deleteGroup(groupId) },
+            modifier = Modifier.weight(1f)
+        )
     }
 }
