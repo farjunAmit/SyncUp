@@ -4,7 +4,7 @@ import com.example.syncup.data.model.Group
 
 interface GroupsRepository {
     fun getAll(): List<Group>
-    fun create(name: String): Group
-    fun rename(id: String, newName: String)
-    fun delete(id: String)
+    suspend fun create(name: String, invitedEmails: List<String> = emptyList()): Group
+    suspend fun rename(id: String, newName: String)
+    suspend fun delete(id: String)
 }
