@@ -5,46 +5,41 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.syncup.data.repository.group.InMemoryGroupsRepository
-import com.example.syncup.ui.group.GroupsScreen
-import com.example.syncup.ui.group.GroupsViewModel
+import com.example.syncup.data.AppContainer
+import com.example.syncup.ui.navigation.SyncUpApp
 import com.example.syncup.ui.theme.SyncUpTheme
 
+/**
+ * MainActivity
+ *
+ * Application entry point.
+ * Responsible for:
+ * - Creating the AppContainer (manual dependency container)
+ * - Setting the Compose content tree
+ * - Applying the app theme and top-level surface
+ * - Launching the root composable (SyncUpApp) which owns navigation
+ */
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
+
+    // App-wide dependencies are created once and passed down to the UI layer.
+    private val appContainer = AppContainer()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Enables edge-to-edge drawing (status/navigation bars)
         enableEdgeToEdge()
+
         setContent {
             SyncUpTheme {
-                val repo = InMemoryGroupsRepository()
-                val viewModel = GroupsViewModel(repo)
+                // Top-level background container for the app content
                 Surface(Modifier.fillMaxSize()) {
-                    GroupsScreen(viewModel)
+                    // Root composable that sets up navigation and screens
+                    SyncUpApp(appContainer)
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SyncUpTheme {
-        Greeting("Android")
     }
 }

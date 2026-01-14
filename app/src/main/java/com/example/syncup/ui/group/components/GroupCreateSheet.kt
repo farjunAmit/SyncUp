@@ -1,4 +1,4 @@
-package com.example.syncup.ui.group.components.GroupItem
+package com.example.syncup.ui.group.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,26 +21,44 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * GroupCreateSheet
+ *
+ * Bottom sheet used for creating a new group.
+ * Allows the user to:
+ * - Enter a group name
+ * - Add one or more email invitations
+ * - Confirm or cancel the creation process
+ *
+ * All state in this component is local UI state.
+ * Business logic is delegated to the caller via callbacks.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupCreateSheet(
     onCreate: (String, List<String>) -> Unit,
     onCancel: () -> Unit,
 ) {
+
     ModalBottomSheet(
         onDismissRequest = { onCancel() },
     ) {
+
+        // Local UI state for form inputs
         var groupName by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
         val invitedEmails = remember { mutableStateListOf<String>() }
+
+        /**
+         * Adds the current email input to the invitations list.
+         * Trims whitespace, normalizes casing, and prevents duplicates.
+         */
         fun addEmail() {
             val e = email.trim().lowercase()
             if (e !in invitedEmails) {
@@ -48,18 +66,24 @@ fun GroupCreateSheet(
                 email = ""
             }
         }
-        Column(modifier = Modifier.padding(16.dp)) {
+
+        Column(modifier = Modifier.Companion.padding(16.dp)) {
+
             Text("Create group")
-            Spacer(Modifier.height(12.dp))
+
+            Spacer(Modifier.Companion.height(12.dp))
+
             TextField(
                 value = groupName,
                 onValueChange = { groupName = it },
                 label = { Text("Group name") },
                 singleLine = true,
             )
-            Spacer(Modifier.height(12.dp))
+
+            Spacer(Modifier.Companion.height(12.dp))
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 TextField(
@@ -67,13 +91,20 @@ fun GroupCreateSheet(
                     onValueChange = { email = it },
                     label = { Text("Email") },
                     singleLine = true,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.Companion.weight(1f)
                 )
-                Button(onClick = { addEmail() }, enabled = email.isNotBlank()) {
+
+                Button(
+                    onClick = { addEmail() },
+                    enabled = email.isNotBlank()
+                ) {
                     Text("Add")
                 }
             }
-            Spacer(Modifier.height(12.dp))
+
+            Spacer(Modifier.Companion.height(12.dp))
+
+            // Displays added email invitations as removable chips
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -84,33 +115,41 @@ fun GroupCreateSheet(
                         label = { Text(it) },
                         trailingIcon = {
                             IconButton(onClick = { invitedEmails.remove(it) }) {
-                                Icon(Icons.Default.Close, contentDescription = "Remove")
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Remove"
+                                )
                             }
                         }
                     )
                 }
             }
-            Spacer(Modifier.height(12.dp))
-            Row() {
+
+            Spacer(Modifier.Companion.height(12.dp))
+
+            Row {
                 Button(
                     onClick = {
                         onCreate(groupName, invitedEmails.toList())
                         groupName = ""
                         email = ""
                         invitedEmails.clear()
-                    }, enabled = groupName.isNotBlank()
+                    },
+                    enabled = groupName.isNotBlank()
                 ) {
                     Text("Create")
                 }
-                Spacer(Modifier.width(12.dp))
+
+                Spacer(Modifier.Companion.width(12.dp))
+
                 TextButton(
                     onClick = {
                         onCancel()
                         groupName = ""
                         email = ""
                         invitedEmails.clear()
-                    })
-                {
+                    }
+                ) {
                     Text("Cancel")
                 }
             }
