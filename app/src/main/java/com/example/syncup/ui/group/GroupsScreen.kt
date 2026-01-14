@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.syncup.ui.group.components.GroupItem.GroupCreateSheet
 import com.example.syncup.ui.group.components.GroupItem.GroupGrid
 
 
@@ -74,83 +75,15 @@ fun GroupsScreen(viewModel: GroupsViewModel, modifier: Modifier = Modifier) {
                 )
             }
         }
-
         if (showCreateSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showCreateSheet = false },
-            ) {
-                var groupName by remember { mutableStateOf("") }
-                var email by remember { mutableStateOf("") }
-                val invitedEmails = remember { mutableStateListOf<String>() }
-                fun addEmail() {
-                    val e = email.trim().lowercase()
-                    if (e !in invitedEmails) {
-                        invitedEmails.add(e)
-                        email = ""
-                    }
-                }
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Create group")
-                    Spacer(Modifier.height(12.dp))
-                    TextField(
-                        value = groupName,
-                        onValueChange = { groupName = it },
-                        label = { Text("Group name") },
-                        singleLine = true,
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        TextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            label = { Text("Email") },
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Button(onClick = { addEmail() }, enabled = email.isNotBlank()) {
-                            Text("Add")
-                        }
-                    }
-                    Spacer(Modifier.height(12.dp))
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        invitedEmails.forEach {
-                            AssistChip(
-                                onClick = {},
-                                label = { Text(it) },
-                                trailingIcon = {
-                                    IconButton(onClick = { invitedEmails.remove(it) }) {
-                                        Icon(Icons.Default.Close, contentDescription = "Remove")
-                                    }
-                                }
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(12.dp))
-                    Row() {
-                        Button(
-                            onClick = {
-                                viewModel.addGroup(groupName, invitedEmails.toList())
-                                showCreateSheet = false
-                                groupName = ""
-                            }, enabled = groupName.isNotBlank()
-                        ) {
-                            Text("Create")
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        TextButton(
-                            onClick = { showCreateSheet = false })
-                        {
-                            Text("Cancel")
-                        }
-                    }
-                }
-            }
+            GroupCreateSheet(
+                onCreate = { name, invitedEmails ->
+                    viewModel.addGroup(name, invitedEmails)
+                    showCreateSheet = false
+                },
+                onCancel = { showCreateSheet = false }
+            )
+
         }
     }
 }
