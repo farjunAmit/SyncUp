@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.syncup.ui.group.components.GroupItem.GroupCreateSheet
+import com.example.syncup.ui.group.components.GroupItem.GroupEmptyState
 import com.example.syncup.ui.group.components.GroupItem.GroupGrid
 
 
@@ -43,47 +44,51 @@ import com.example.syncup.ui.group.components.GroupItem.GroupGrid
 fun GroupsScreen(viewModel: GroupsViewModel, modifier: Modifier = Modifier) {
     val state = viewModel.uiState.collectAsState().value
     var showCreateSheet by remember { mutableStateOf(false) }
-
-    Column(modifier = modifier.padding(16.dp))
-    {
-        Scaffold(
-            topBar = {
-                TopAppBar(title = { Text("Groups") })
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = { showCreateSheet = true })
-                {
-                    Icon(Icons.Filled.Add, contentDescription = "Add group")
-                }
+    val emptyState = state.groups.isEmpty()
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Groups") })
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showCreateSheet = true })
+            {
+                Icon(Icons.Filled.Add, contentDescription = "Add group")
             }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp)
-                    .fillMaxSize()
-            ) {
-                Spacer(Modifier.height(12.dp))
-                Text("Group: ${state.groups.size}")
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+                .fillMaxSize()
+        ) {
+            Spacer(Modifier.height(12.dp))
+            Text("Group: ${state.groups.size}")
+            Spacer(Modifier.height(12.dp))
+            if (emptyState) {
+                GroupEmptyState(onClick = { showCreateSheet = true })
+            }
+            else {
                 GroupGrid(
                     state.groups,
                     { groupId -> { /*Todo: here will be group click - navigate to group screen */ } },
                     { groupId -> viewModel.deleteGroup(groupId) },
-                    modifier = Modifier
+                    modifier = modifier
                         .weight(1f)
                         .fillMaxWidth()
                 )
             }
         }
-        if (showCreateSheet) {
-            GroupCreateSheet(
-                onCreate = { name, invitedEmails ->
-                    viewModel.addGroup(name, invitedEmails)
-                    showCreateSheet = false
-                },
-                onCancel = { showCreateSheet = false }
-            )
+    }
 
-        }
+    if (showCreateSheet) {
+        GroupCreateSheet(
+            onCreate = { name, invitedEmails ->
+                viewModel.addGroup(name, invitedEmails)
+                showCreateSheet = false
+            },
+            onCancel = { showCreateSheet = false }
+        )
+
     }
 }

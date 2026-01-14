@@ -25,7 +25,10 @@ fun GroupGrid(
     )
     {
         items(groups) {
-            GroupItem(it, onGroupClick = { onGroupClick(it.id) }, onDelete = { onDelete(it.id) })
+            GroupItem(
+                it,
+                onGroupClick = { onGroupClick(it.id) },
+                onDelete = { onDelete(it.id) })
         }
     }
 }
