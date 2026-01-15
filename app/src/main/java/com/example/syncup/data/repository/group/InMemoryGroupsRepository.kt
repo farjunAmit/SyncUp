@@ -1,7 +1,7 @@
 package com.example.syncup.data.repository.group
 
-import com.example.syncup.data.model.Group
-import com.example.syncup.data.model.GroupInvite
+import com.example.syncup.data.model.groups.Group
+import com.example.syncup.data.model.groups.GroupInvite
 import java.util.UUID
 
 /**

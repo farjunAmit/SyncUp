@@ -1,6 +1,6 @@
 package com.example.syncup.data.repository.group
 
-import com.example.syncup.data.model.Group
+import com.example.syncup.data.model.groups.Group
 
 /**
  * GroupsRepository

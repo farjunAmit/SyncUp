@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.syncup.data.model.Group
+import com.example.syncup.data.model.groups.Group
 
 /**
  * GroupGrid

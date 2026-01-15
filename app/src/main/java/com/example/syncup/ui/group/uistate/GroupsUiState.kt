@@ -1,6 +1,6 @@
 package com.example.syncup.ui.group.uistate
 
-import com.example.syncup.data.model.Group
+import com.example.syncup.data.model.groups.Group
 
 /**
  * GroupsUiState

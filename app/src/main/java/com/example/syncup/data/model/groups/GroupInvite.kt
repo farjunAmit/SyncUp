@@ -1,4 +1,4 @@
-package com.example.syncup.data.model
+package com.example.syncup.data.model.groups
 
 /**
  * GroupInvite
