@@ -29,7 +29,7 @@ class InMemoryGroupsRepository : GroupsRepository {
      * Returns a copy of the current groups list.
      * A defensive copy is used to prevent external mutation.
      */
-    override fun getAll(): List<Group> {
+    override suspend fun getAll(): List<Group> {
         return groups.toList()
     }
 
@@ -73,5 +73,14 @@ class InMemoryGroupsRepository : GroupsRepository {
      */
     override suspend fun delete(id: String) {
         groups.removeIf { it.id == id }
+    }
+
+    /**
+     * Retrieves a specific group by its identifier.
+     *
+     * This implementation is not optimized for performance.
+     */
+    override suspend fun getGroup(id: String): Group? {
+        return groups.find { it.id == id }
     }
 }

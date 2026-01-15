@@ -17,7 +17,7 @@ interface GroupsRepository {
     /**
      * Returns all existing groups.
      */
-    fun getAll(): List<Group>
+    suspend fun getAll(): List<Group>
 
     /**
      * Creates a new group with the given name.
@@ -45,4 +45,11 @@ interface GroupsRepository {
      * @param id The unique identifier of the group to delete.
      */
     suspend fun delete(id: String)
+
+    /**
+     * Retrieves a specific group by its identifier.
+     *
+     * @param id The unique identifier of the group.
+     */
+    suspend fun getGroup(id: String) : Group?
 }

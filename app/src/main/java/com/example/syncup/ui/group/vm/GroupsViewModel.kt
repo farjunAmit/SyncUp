@@ -1,8 +1,9 @@
-package com.example.syncup.ui.group
+package com.example.syncup.ui.group.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.repository.group.GroupsRepository
+import com.example.syncup.ui.group.uistate.GroupsUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +23,7 @@ import kotlinx.coroutines.launch
  * which is enough for the in-memory repository and MVP stage.
  */
 class GroupsViewModel(
-    val repo: GroupsRepository
+    private val repo: GroupsRepository
 ) : ViewModel() {
 
     // Internal mutable state (only the ViewModel can update it)
@@ -41,8 +42,10 @@ class GroupsViewModel(
      * Synchronous because the current repository implementation is local/in-memory.
      */
     fun loadGroups() {
-        _uiState.update { current ->
-            current.copy(groups = repo.getAll())
+        viewModelScope.launch {
+            _uiState.update { current ->
+                current.copy(groups = repo.getAll())
+            }
         }
     }
 

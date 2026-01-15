@@ -1,4 +1,4 @@
-package com.example.syncup.ui.group
+package com.example.syncup.ui.group.uistate
 
 import com.example.syncup.data.model.Group
 

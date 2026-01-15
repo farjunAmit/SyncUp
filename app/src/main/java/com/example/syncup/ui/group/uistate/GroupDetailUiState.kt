@@ -1,0 +1,16 @@
+package com.example.syncup.ui.group.uistate
+
+import com.example.syncup.data.model.Group
+
+/**
+ * GroupDetailUiState
+ *
+ * Immutable UI state for the GroupDetail screen.
+ * Represents all the data required to render the GroupDetailScreen.
+ *
+ * This state is exposed by GroupDetailViewModel and observed by the UI.
+ */
+data class GroupDetailUiState(
+    val groups: List<Group> = emptyList(),
+    val group : Group? = null
+)

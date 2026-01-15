@@ -1,4 +1,4 @@
-package com.example.syncup.ui.group
+package com.example.syncup.ui.group.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.syncup.ui.group.vm.GroupsViewModel
 import com.example.syncup.ui.group.components.GroupCreateSheet
 import com.example.syncup.ui.group.components.GroupEmptyState
 import com.example.syncup.ui.group.components.GroupGrid

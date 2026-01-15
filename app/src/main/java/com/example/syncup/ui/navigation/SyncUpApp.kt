@@ -9,9 +9,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.syncup.Routes
 import com.example.syncup.data.AppContainer
-import com.example.syncup.ui.group.GroupDetailScreen
-import com.example.syncup.ui.group.GroupsScreen
-import com.example.syncup.ui.group.GroupsViewModel
+import com.example.syncup.ui.group.screens.GroupDetailScreen
+import com.example.syncup.ui.group.vm.GroupDetailViewModel
+import com.example.syncup.ui.group.screens.GroupsScreen
+import com.example.syncup.ui.group.vm.GroupsViewModel
 
 /**
  * SyncUpApp
@@ -68,9 +69,19 @@ fun SyncUpApp(appContainer: AppContainer) {
 
             // Extract groupId from navigation arguments
             val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
-
+            val groupsDetailViewModel = remember {
+                GroupDetailViewModel(appContainer.groupsRepository)
+            }
             GroupDetailScreen(
+                viewModel = groupsDetailViewModel,
                 groupId = groupId,
+                onGroupSelected = { newGroupId ->
+                    if (newGroupId != groupId) {
+                        navController.navigate(Routes.groupDetail(newGroupId)) {
+                            popUpTo(Routes.GROUP_DETAIL) { inclusive = true }
+                        }
+                    }
+                },
                 onBack = { navController.popBackStack() }
             )
         }
