@@ -1,5 +1,6 @@
 package com.example.syncup.ui.group.uistate
 
+import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.groups.Group
 
 /**
@@ -12,5 +13,6 @@ import com.example.syncup.data.model.groups.Group
  */
 data class GroupDetailUiState(
     val groups: List<Group> = emptyList(),
+    val events: List<Event> = emptyList(),
     val group : Group? = null
 )

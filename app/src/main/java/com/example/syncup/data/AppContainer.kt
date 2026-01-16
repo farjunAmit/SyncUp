@@ -1,5 +1,6 @@
 package com.example.syncup.data
 
+import com.example.syncup.data.repository.event.InMemoryEventRepository
 import com.example.syncup.data.repository.group.InMemoryGroupsRepository
 
 /**
@@ -13,6 +14,6 @@ import com.example.syncup.data.repository.group.InMemoryGroupsRepository
  * to a full dependency injection framework.
  */
 class AppContainer {
-
     val groupsRepository = InMemoryGroupsRepository()
+    val eventRepository = InMemoryEventRepository()
 }

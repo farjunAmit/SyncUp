@@ -2,6 +2,8 @@ package com.example.syncup.ui.group.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.syncup.data.model.events.TimeSlot
+import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.group.uistate.GroupDetailUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,31 +23,81 @@ import kotlinx.coroutines.launch
  * Note: Current implementation uses a simple "reload after change" strategy,
  * which is enough for the in-memory repository and MVP stage.
  */
-class GroupDetailViewModel(private val repo : GroupsRepository) : ViewModel() {
+class GroupDetailViewModel(
+    private val groupRepo: GroupsRepository,
+    private val eventRepo: EventRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(GroupDetailUiState())
-    val uiState : StateFlow<GroupDetailUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<GroupDetailUiState> = _uiState.asStateFlow()
 
     /**
      * Loads the details of a specific group from the repository and updates the UI state.
      * Runs in viewModelScope to keep async work lifecycle-aware.
      */
-    init{
+    init {
         loadGroups()
     }
 
+    /**
+     * Loads the current list of groups from the repository and updates the UI state.
+     */
     private fun loadGroups() {
         viewModelScope.launch {
             _uiState.update { current ->
-                current.copy(groups = repo.getAll())
+                current.copy(groups = groupRepo.getAll())
             }
         }
     }
 
-    fun loadGroup(id : String) {
+    /**
+     * Loads the details of a specific group from the repository and updates the UI state.
+     */
+    fun loadGroup(id: String) {
         viewModelScope.launch {
+            // If the UI state is empty, load groups before loading the specific group
+            if (_uiState.value.groups.isEmpty()) {
+                val groups = groupRepo.getAll()
+                _uiState.update { it.copy(groups = groups) }
+            }
+            val group = _uiState.value.groups.find { it.id == id }
+            _uiState.update { it.copy(group = group) }
+        }
+    }
+
+    /**
+     * Loads the events of a specific group from the repository and updates the UI state.
+     */
+    fun loadEvents(groupId: String) {
+        viewModelScope.launch {
+            val events = eventRepo.getAll(groupId)
             _uiState.update { current ->
-                val group = current.groups.find { it.id == id }
-                current.copy(group = group)
+                current.copy(events = events)
+            }
+        }
+    }
+
+    /**
+     * Creates a new event and optionally invites emails.
+     */
+    fun createEvent(title: String, possibleSlots: List<TimeSlot>, description: String) {
+        viewModelScope.launch {
+            val group = _uiState.value.group
+            if (group != null) {
+                eventRepo.create(group.id, title, possibleSlots, description)
+                loadEvents(group.id)
+            }
+        }
+    }
+
+    /**
+     * Deletes a group by id, then refreshes the UI state.
+     */
+    fun deleteEvent(eventId: String) {
+        viewModelScope.launch {
+            val group = _uiState.value.group
+            if(group != null) {
+                eventRepo.delete(eventId)
+                loadEvents(group.id)
             }
         }
     }

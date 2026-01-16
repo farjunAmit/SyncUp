@@ -70,7 +70,7 @@ fun SyncUpApp(appContainer: AppContainer) {
             // Extract groupId from navigation arguments
             val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
             val groupsDetailViewModel = remember {
-                GroupDetailViewModel(appContainer.groupsRepository)
+                GroupDetailViewModel(appContainer.groupsRepository, appContainer.eventRepository)
             }
             GroupDetailScreen(
                 viewModel = groupsDetailViewModel,

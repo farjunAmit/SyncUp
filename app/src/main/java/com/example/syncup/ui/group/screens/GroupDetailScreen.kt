@@ -56,6 +56,7 @@ fun GroupDetailScreen(
     LaunchedEffect(groupId) {
         if (groupId != null) {
             viewModel.loadGroup(groupId)
+            viewModel.loadEvents(groupId)
         }
     }
 
