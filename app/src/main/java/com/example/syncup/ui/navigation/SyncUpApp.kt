@@ -9,9 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.syncup.Routes
 import com.example.syncup.data.AppContainer
+import com.example.syncup.ui.group.screens.CreateEventScreen
 import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
+import com.example.syncup.ui.group.vm.CreateEventViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
 
 /**
@@ -82,6 +84,31 @@ fun SyncUpApp(appContainer: AppContainer) {
                         }
                     }
                 },
+                onCreateEvent = {
+                    navController.navigate(Routes.createEvent(groupId))
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        /**
+         * Create event route.
+         * Expects groupId as a mandatory navigation argument.
+         */
+        composable(
+            Routes.CREATE_EVENT,
+            arguments = listOf(
+                navArgument("groupId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            // Extract groupId from navigation arguments
+            val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+            val createEventViewModel = remember {
+                CreateEventViewModel(appContainer.eventRepository)
+            }
+            CreateEventScreen(
+                viewModel = createEventViewModel,
+                groupId = groupId,
                 onBack = { navController.popBackStack() }
             )
         }

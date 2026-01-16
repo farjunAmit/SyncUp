@@ -18,6 +18,8 @@ object Routes {
     /** Route pattern for the group details screen */
     const val GROUP_DETAIL = "group/{groupId}"
 
+    const val CREATE_EVENT = "createEvent/{groupId}"
+
     /**
      * Builds a concrete navigation route for a specific group.
      *
@@ -25,4 +27,12 @@ object Routes {
      * @return A navigation route including the groupId parameter.
      */
     fun groupDetail(groupId: String) = "group/$groupId"
+
+    /**
+     * Builds a navigation route for creating an event in a specific group.
+     *
+     * @param groupId The unique identifier of the group.
+     * @return A navigation route including the groupId parameter.
+     */
+    fun createEvent(groupId: String) = "createEvent/$groupId"
 }

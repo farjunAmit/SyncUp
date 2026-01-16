@@ -43,13 +43,14 @@ fun GroupDetailScreen(
     viewModel: GroupDetailViewModel,
     groupId: String?,
     onGroupSelected: (String) -> Unit,
+    onCreateEvent: () -> Unit,
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value
     val index = state.groups.indexOfFirst { it.id == groupId }
     //If groupId is not found, default to index 0
     val selectedTabIndex = when (index != -1) {
-        true ->  index
+        true -> index
         false -> 0
     }
     // Runs loadGroup only when groupId changes, not on every recomposition
@@ -72,14 +73,14 @@ fun GroupDetailScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { createNewEvent() }) {
+            FloatingActionButton(onClick = { onCreateEvent() }) {
                 Icon(Icons.Filled.DateRange, contentDescription = "Add event")
             }
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
-                state.groups.forEachIndexed{index, group ->
+                state.groups.forEachIndexed { index, group ->
                     Tab(
                         selected = index == selectedTabIndex,
                         text = { Text(group.name) },
@@ -94,6 +95,3 @@ fun GroupDetailScreen(
     }
 }
 
-fun createNewEvent() {
-    //Todo: Create new event
-}

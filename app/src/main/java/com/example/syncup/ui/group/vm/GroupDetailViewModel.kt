@@ -2,7 +2,6 @@ package com.example.syncup.ui.group.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.group.uistate.GroupDetailUiState
@@ -77,25 +76,12 @@ class GroupDetailViewModel(
     }
 
     /**
-     * Creates a new event and optionally invites emails.
-     */
-    fun createEvent(title: String, possibleSlots: List<TimeSlot>, description: String) {
-        viewModelScope.launch {
-            val group = _uiState.value.group
-            if (group != null) {
-                eventRepo.create(group.id, title, possibleSlots, description)
-                loadEvents(group.id)
-            }
-        }
-    }
-
-    /**
      * Deletes a group by id, then refreshes the UI state.
      */
     fun deleteEvent(eventId: String) {
         viewModelScope.launch {
             val group = _uiState.value.group
-            if(group != null) {
+            if (group != null) {
                 eventRepo.delete(eventId)
                 loadEvents(group.id)
             }
