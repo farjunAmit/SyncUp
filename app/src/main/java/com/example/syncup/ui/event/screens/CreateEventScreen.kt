@@ -1,4 +1,4 @@
-package com.example.syncup.ui.group.screens
+package com.example.syncup.ui.event.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,9 +22,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.syncup.data.model.events.PartOfDay
 import com.example.syncup.data.model.events.TimeSlot
+import com.example.syncup.ui.event.components.CreateEventCalendar
+import com.example.syncup.ui.event.components.TimeSlotChooseSheet
 import com.example.syncup.ui.group.vm.CreateEventViewModel
-
+import java.time.LocalDate
+/**
+ * Screen for creating a new event inside a specific group.
+ *
+ * The user provides:
+ * - title
+ * - description
+ * - a set of possible [TimeSlot]s (date + part of day) that participants will vote on
+ *
+ * UI flow:
+ * 1) The calendar shows a time window (currently: two weeks).
+ * 2) Clicking a calendar cell sets [selectedDate].
+ * 3) When [selectedDate] is not null, a bottom sheet ([TimeSlotChooseSheet]) is shown
+ *    to choose Morning/Evening for that date.
+ * 4) On confirmation, the selected date + part of day are converted into a [TimeSlot]
+ *    and added to [possibleSlots].
+ *
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
@@ -35,6 +55,7 @@ fun CreateEventScreen(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     val possibleSlots = remember { mutableStateListOf<TimeSlot>() }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
     Scaffold(
         topBar = {
@@ -48,16 +69,18 @@ fun CreateEventScreen(
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .padding(16.dp)) {
+        Column(
+            modifier = Modifier.Companion
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
             TextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("Event Title") },
                 singleLine = true
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.Companion.height(8.dp))
             TextField(
                 value = description,
                 onValueChange = { description = it },
@@ -65,9 +88,13 @@ fun CreateEventScreen(
                 singleLine = false,
                 minLines = 3
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Possible Slots placeholder")
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.Companion.height(8.dp))
+            CreateEventCalendar(
+                onCellClick = { date ->
+                    selectedDate = date
+                }
+            )
+            Spacer(modifier = Modifier.Companion.height(8.dp))
             Button(
                 onClick = {
                     viewModel.createEvent(groupId, title, possibleSlots, description)
@@ -76,5 +103,19 @@ fun CreateEventScreen(
                 enabled = title.isNotBlank() && possibleSlots.isNotEmpty()
             ) { Text("Create Event") }
         }
+    }
+    selectedDate?.let {
+        TimeSlotChooseSheet(
+            date = it,
+            onDismiss = { selectedDate = null },
+            onTimeSlotSelected = { morning, evening, date ->
+                val partOfDay: PartOfDay = when {
+                    morning && evening -> PartOfDay.ALL_DAY
+                    morning -> PartOfDay.MORNING
+                    else -> PartOfDay.EVENING
+                }
+                possibleSlots.add(TimeSlot(date, partOfDay))
+            }
+        )
     }
 }

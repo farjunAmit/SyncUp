@@ -18,7 +18,7 @@ class InMemoryEventRepository : EventRepository {
     override suspend fun create(
         groupId: String,
         title: String,
-        possibleSlots: List<TimeSlot>,
+        possibleSlots: Set<TimeSlot>,
         description: String
     ): Event {
         val eventId = UUID.randomUUID().toString()
