@@ -15,7 +15,7 @@ import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
 import com.example.syncup.ui.event.vm.CreateEventViewModel
-import com.example.syncup.ui.event.vm.EventDetailViewModel
+import com.example.syncup.ui.event.vm.EventVotingViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
 
 /**
@@ -129,11 +129,11 @@ fun SyncUpApp(appContainer: AppContainer) {
             )
         ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
-            val eventDetailViewModel = remember {
-                EventDetailViewModel(appContainer.eventRepository)
+            val eventVotingViewModel = remember {
+                EventVotingViewModel(appContainer.eventRepository)
             }
             EventDetailScreen(
-                viewModel = eventDetailViewModel,
+                viewModel = eventVotingViewModel,
                 eventId = eventId,
                 onBack = { navController.popBackStack() }
             )

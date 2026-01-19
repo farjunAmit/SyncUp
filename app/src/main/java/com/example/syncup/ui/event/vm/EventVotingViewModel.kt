@@ -3,5 +3,5 @@ package com.example.syncup.ui.event.vm
 import androidx.lifecycle.ViewModel
 import com.example.syncup.data.repository.event.EventRepository
 
-class EventDetailViewModel (repo: EventRepository): ViewModel() {
+class EventVotingViewModel (repo: EventRepository): ViewModel() {
 }
