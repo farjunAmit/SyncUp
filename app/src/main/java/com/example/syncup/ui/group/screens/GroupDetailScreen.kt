@@ -1,7 +1,11 @@
 package com.example.syncup.ui.group.screens
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
@@ -44,6 +48,7 @@ fun GroupDetailScreen(
     groupId: String?,
     onGroupSelected: (String) -> Unit,
     onCreateEvent: () -> Unit,
+    onEventSelected: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value
@@ -90,6 +95,20 @@ fun GroupDetailScreen(
             }
             Surface(modifier = Modifier.padding(16.dp)) {
                 Text("Calendar (placeholder)", modifier = Modifier.padding(16.dp))
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(state.events) { event ->
+                    Text(event.title,
+                        modifier = Modifier.clickable {
+                            onEventSelected(event.id)
+                        }
+                    )
+                }
             }
         }
     }
