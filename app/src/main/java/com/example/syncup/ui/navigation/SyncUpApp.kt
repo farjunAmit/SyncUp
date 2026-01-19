@@ -13,7 +13,7 @@ import com.example.syncup.ui.event.screens.CreateEventScreen
 import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
-import com.example.syncup.ui.group.vm.CreateEventViewModel
+import com.example.syncup.ui.event.vm.CreateEventViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
 
 /**

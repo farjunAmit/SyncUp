@@ -1,4 +1,4 @@
-package com.example.syncup.ui.group.vm
+package com.example.syncup.ui.event.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,7 +28,7 @@ class CreateEventViewModel(
     fun createEvent(
         groupId: String,
         title: String,
-        possibleSlots: List<TimeSlot>,
+        possibleSlots: Set<TimeSlot>,
         description: String
     ) {
         viewModelScope.launch {

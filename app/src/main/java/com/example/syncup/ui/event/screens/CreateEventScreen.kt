@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,8 +27,9 @@ import com.example.syncup.data.model.events.PartOfDay
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.ui.event.components.CreateEventCalendar
 import com.example.syncup.ui.event.components.TimeSlotChooseSheet
-import com.example.syncup.ui.group.vm.CreateEventViewModel
+import com.example.syncup.ui.event.vm.CreateEventViewModel
 import java.time.LocalDate
+
 /**
  * Screen for creating a new event inside a specific group.
  *
@@ -54,7 +56,7 @@ fun CreateEventScreen(
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    val possibleSlots = remember { mutableStateListOf<TimeSlot>() }
+    val possibleSlots = remember { mutableStateSetOf<TimeSlot>() }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
     Scaffold(
@@ -92,6 +94,9 @@ fun CreateEventScreen(
             CreateEventCalendar(
                 onCellClick = { date ->
                     selectedDate = date
+                },
+                isSelected = { date ->
+                    possibleSlots.any { it.date == date }
                 }
             )
             Spacer(modifier = Modifier.Companion.height(8.dp))
@@ -104,9 +109,17 @@ fun CreateEventScreen(
             ) { Text("Create Event") }
         }
     }
-    selectedDate?.let {
+    selectedDate?.let { it ->
         TimeSlotChooseSheet(
             date = it,
+            initialMorning = possibleSlots.any { timeSlot ->
+                timeSlot.date == it &&
+                        (timeSlot.partOfDay == PartOfDay.MORNING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
+            },
+            initialEvening = possibleSlots.any { timeSlot ->
+                timeSlot.date == it &&
+                        (timeSlot.partOfDay == PartOfDay.EVENING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
+            },
             onDismiss = { selectedDate = null },
             onTimeSlotSelected = { morning, evening, date ->
                 val partOfDay: PartOfDay = when {
@@ -114,7 +127,11 @@ fun CreateEventScreen(
                     morning -> PartOfDay.MORNING
                     else -> PartOfDay.EVENING
                 }
-                possibleSlots.add(TimeSlot(date, partOfDay))
+                possibleSlots.removeIf { it.date == date }
+                if (morning || evening) {
+                    possibleSlots.add(TimeSlot(date, partOfDay))
+                }
+                selectedDate = null
             }
         )
     }

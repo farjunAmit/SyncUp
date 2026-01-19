@@ -1,6 +1,5 @@
-package com.example.syncup.ui.group.uistate
+package com.example.syncup.ui.event.uistate
 
-import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.groups.Group
 
 data class CreateEventUiState(

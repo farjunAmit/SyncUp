@@ -41,10 +41,12 @@ import java.time.LocalDate
 fun TimeSlotChooseSheet(
     date: LocalDate,
     onDismiss: () -> Unit,
+    initialMorning: Boolean,
+    initialEvening: Boolean,
     onTimeSlotSelected: (morning: Boolean, evening: Boolean, date: LocalDate) -> Unit
 ) {
-    var isMorningSelected by remember { mutableStateOf(false) }
-    var isEveningSelected by remember { mutableStateOf(false) }
+    var isMorningSelected by remember(date) { mutableStateOf(initialMorning) }
+    var isEveningSelected by remember(date) { mutableStateOf(initialEvening) }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier.padding(16.dp)

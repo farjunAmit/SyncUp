@@ -24,7 +24,7 @@ fun GroupGrid(
     onGroupClick: (String) -> Unit,
     onDelete: (String) -> Unit,
     onEdit: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.Companion
 ) {
 
     LazyVerticalGrid(
