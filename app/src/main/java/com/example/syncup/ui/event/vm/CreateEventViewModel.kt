@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
-import com.example.syncup.ui.group.uistate.GroupDetailUiState
+import com.example.syncup.ui.event.uistate.CreateEventUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,8 +19,8 @@ import kotlinx.coroutines.launch
 class CreateEventViewModel(
     val eventRepo: EventRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(GroupDetailUiState())
-    val uiState: StateFlow<GroupDetailUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(CreateEventUiState())
+    val uiState: StateFlow<CreateEventUiState> = _uiState.asStateFlow()
 
     /**
      * Creates a new event and optionally invites emails.
