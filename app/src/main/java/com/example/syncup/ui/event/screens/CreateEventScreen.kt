@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.syncup.data.model.events.PartOfDay
@@ -101,7 +102,9 @@ fun CreateEventScreen(
             Spacer(modifier = Modifier.Companion.height(8.dp))
             Button(
                 onClick = {
-                    viewModel.createEvent(groupId, title, possibleSlots, description)
+                    var possibleSlotsSort = possibleSlots.toList()
+                    possibleSlotsSort = possibleSlotsSort.sortedBy { it.date }
+                    viewModel.createEvent(groupId, title, possibleSlotsSort.toMutableSet(), description)
                     onBack()
                 },
                 enabled = title.isNotBlank() && possibleSlots.isNotEmpty()

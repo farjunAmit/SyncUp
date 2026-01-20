@@ -12,7 +12,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.syncup.data.model.events.TimeSlot
+import com.example.syncup.ui.event.components.VoteForSlotSheet
+import com.example.syncup.ui.event.components.VoteOptionsGrid
 import com.example.syncup.ui.event.vm.EventVotingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,7 +31,12 @@ fun EventDetailScreen(
 ) {
     val state = viewModel.uiState.collectAsState().value
     val event = state.event
+    var possibleSlots: Set<TimeSlot> = emptySet()
+    var chosenTimeSlot by remember { mutableStateOf<TimeSlot?>(null) }
 
+    if (event != null) {
+        possibleSlots = event.possibleSlots
+    }
     LaunchedEffect(eventId) {
         viewModel.loadEvent(eventId)
     }
@@ -44,8 +56,21 @@ fun EventDetailScreen(
                 }
             )
         }
-    ){innerPadding ->
-        Text("Event Detail Screen", modifier = Modifier.padding(innerPadding))
-
+    ) { innerPadding ->
+        chosenTimeSlot?.let {
+            VoteForSlotSheet(
+                timeSlot = it,
+                onDismiss = { chosenTimeSlot = null },
+                onVote = { vote ->
+                    //Todo: add vote to draft
+                    chosenTimeSlot = null
+                }
+            )
+        }
+        VoteOptionsGrid(
+            modifier = Modifier.padding(innerPadding),
+            possibleSlots = possibleSlots,
+            onSlotClick = { chosenTimeSlot = it }
+        )
     }
 }

@@ -91,6 +91,11 @@ class Event(
             userVotes.addVote(date, vote)
         }
     }
+
+    fun getVoteForUser(userId: String): Map<TimeSlot, Vote?> {
+        val userVotes = _userVotes[userId] ?: return emptyMap()
+        return userVotes.getAllVotes()
+    }
 }
 
 /**
