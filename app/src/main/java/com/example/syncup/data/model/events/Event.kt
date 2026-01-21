@@ -1,4 +1,5 @@
 package com.example.syncup.data.model.events
+
 /**
  * Represents a group event that is created and managed through the voting flow.
  *
@@ -18,10 +19,12 @@ class Event(
     val groupId: String,
     title: String,
     possibleSlots: Set<TimeSlot>,
-    description: String
+    description: String,
+    val decisionMode: DecisionMode = DecisionMode.ALL_OR_NOTHING
 ) {
     var title: String = title
         private set
+
     /**
      * All possible time slots that participants can vote for.
      * This set is defined by the event creator during event creation
@@ -33,6 +36,7 @@ class Event(
         private set
     var eventStatus = EventStatus.VOTING
         private set
+
     /**
      * The final chosen time slot for the event.
      * This value is null while the event is in [EventStatus.VOTING].
@@ -40,12 +44,14 @@ class Event(
     var finalDate: TimeSlot? = null
         private set
 
+
     /**
      * Internal mutable storage of votes per user.
      * Each user can have at most one [UserVotes] entry.
      */
     private val _userVotes: MutableMap<String, UserVotes> =
         mutableMapOf()
+
     /**
      * Read-only view of all user votes for this event.
      */
@@ -83,18 +89,58 @@ class Event(
      * Note:
      * Existing votes for the user are cleared before applying the new ones.
      */
-    fun setNewVotesForUser(userId: String, votes: Map<TimeSlot, Vote>){
+    fun setNewVotesForUser(voteDraft: VoteDraft) {
         //Todo: Add validation to ensure date is in possibleDates and the EventStatus is VOTING
-        val userVotes = _userVotes.getOrPut(userId) { UserVotes(userId) }
+        val userVotes = _userVotes.getOrPut(voteDraft.userId) { UserVotes(voteDraft.userId) }
         userVotes.clear()
-        votes.forEach { (date, vote) ->
+        voteDraft.votes.forEach { (date, vote) ->
             userVotes.addVote(date, vote)
         }
     }
 
+    /**
+     * Returns the current vote map for a specific user within this event.
+     *
+     * @param userId The identifier of the user (currently can be email/userId).
+     * @return A map of [TimeSlot] -> [Vote?] representing the user's selections per slot.
+     *
+     * Notes:
+     * - If the user has never submitted a vote for this event, an empty map is returned.
+     * - The returned map should be treated as read-only from the caller side.
+     */
     fun getVoteForUser(userId: String): Map<TimeSlot, Vote?> {
         val userVotes = _userVotes[userId] ?: return emptyMap()
         return userVotes.getAllVotes()
+    }
+
+    /**
+     * Updates the lifecycle status of the event.
+     *
+     * Typical transitions:
+     * - [EventStatus.VOTING] -> [EventStatus.DECIDED] when a final slot is chosen.
+     * - [EventStatus.VOTING] -> [EventStatus.CANCELLED] if the event is cancelled.
+     *
+     */
+    fun updateStatus(newStatus: EventStatus) {
+        //Todo: Add validation to ensure status is valid
+        eventStatus = newStatus
+    }
+
+    /**
+     * Sets the final chosen time slot for this event.
+     *
+     * @param date The chosen [TimeSlot], or null if no suitable slot could be selected.
+     *
+     * Notes:
+     * - We use copy() to avoid accidental external mutation if [TimeSlot] is a mutable type
+     *   or to ensure immutability semantics.
+     * - In the typical flow:
+     *   - This is set only when the event transitions to [EventStatus.DECIDED].
+     *   - When no final date is found, the event should remain in VOTING or move to a
+     *     dedicated "no match" handling flow (future).
+     */
+    fun setFinalDate(date: TimeSlot?) {
+        finalDate = date?.copy()
     }
 }
 
@@ -110,4 +156,19 @@ enum class EventStatus {
 
     /** Event was cancelled and is no longer active */
     CANCELLED
+}
+
+/**
+ * Determines how the system selects the final time slot once all members have voted.
+ *
+ * - ALL_OR_NOTHING:
+ *   Choose a slot only if it satisfies the strict group constraint (defined in logic),
+ *   otherwise no final date is chosen.
+ *
+ * - POINTS:
+ *   Each vote value contributes points to a slot, and the slot with the highest score wins.
+ */
+enum class DecisionMode {
+    ALL_OR_NOTHING,
+    POINTS
 }

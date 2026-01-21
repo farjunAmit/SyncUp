@@ -36,13 +36,16 @@ fun DeyCell(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { onClick(date) })
             .height(90.dp),
+        onClick = { onClick(date) },
         border = if (isSelected) BorderStroke(1.dp, Color.White) else null
     ) {
-        Column(modifier = Modifier.padding(8.dp).fillMaxSize(),
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        ) {
             Text(text = date.dayOfWeek.toString().substring(0, 2))
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = date.dayOfMonth.toString() + "/" + date.monthValue.toString())

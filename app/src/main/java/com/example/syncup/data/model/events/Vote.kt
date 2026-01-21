@@ -9,7 +9,7 @@ enum class Vote {
     YES,
 
     /** User is possibly available, but prefers not to */
-    MAYBE,
+    YES_BUT,
 
     /** User is not available for the selected time slot */
     NO

@@ -1,7 +1,9 @@
 package com.example.syncup.data.repository.event
 
+import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.TimeSlot
+import com.example.syncup.data.model.events.VoteDraft
 
 /**
  * Repository interface for managing [Event] data.
@@ -44,7 +46,8 @@ interface EventRepository {
         groupId: String,
         title: String,
         possibleSlots: Set<TimeSlot>,
-        description: String
+        description: String,
+        decisionMode: DecisionMode
     ): Event
 
     /**
@@ -54,4 +57,22 @@ interface EventRepository {
      */
     suspend fun delete(eventId: String)
 
+    /**
+     * Submits or updates a user's vote for the given event.
+     *
+     * Responsibilities of the implementation:
+     * - Persist the user's vote data
+     * - Update existing votes if the user has already voted
+     * - Determine whether all group members have voted
+     * - If all votes are present, automatically evaluate the final
+     *   time slot based on the event's [DecisionMode]
+     * - Update the event's status and final date accordingly
+     *
+     * @param eventId The ID of the event being voted on.
+     * @param voteDraft The user's vote submission data.
+     */
+    suspend fun submitVote(
+        eventId: String,
+        voteDraft: VoteDraft
+    )
 }

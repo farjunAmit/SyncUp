@@ -15,5 +15,5 @@ import com.example.syncup.data.repository.group.InMemoryGroupsRepository
  */
 class AppContainer {
     val groupsRepository = InMemoryGroupsRepository()
-    val eventRepository = InMemoryEventRepository()
+    val eventRepository = InMemoryEventRepository(groupsRepository)
 }

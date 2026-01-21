@@ -2,6 +2,7 @@ package com.example.syncup.ui.event.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.ui.event.uistate.CreateEventUiState
@@ -29,10 +30,11 @@ class CreateEventViewModel(
         groupId: String,
         title: String,
         possibleSlots: Set<TimeSlot>,
-        description: String
+        description: String,
+        decisionMode: DecisionMode
     ) {
         viewModelScope.launch {
-            eventRepo.create(groupId, title, possibleSlots, description)
+            eventRepo.create(groupId, title, possibleSlots, description, decisionMode)
         }
     }
 }

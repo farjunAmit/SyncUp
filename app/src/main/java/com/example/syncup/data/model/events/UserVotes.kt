@@ -15,14 +15,14 @@ class UserVotes(val userId: String) {
      * Internal mutable storage of the user's votes.
      * Keyed by [TimeSlot] to ensure a single vote per slot.
      */
-    private val votes = mutableMapOf<TimeSlot, Vote>()
+    private val votes = mutableMapOf<TimeSlot, Vote?>()
 
     /**
      * Adds or updates a vote for the given [TimeSlot].
      *
      * If a vote for the slot already exists, it will be replaced.
      */
-    fun addVote(date: TimeSlot, vote: Vote) {
+    fun addVote(date: TimeSlot, vote: Vote?) {
         votes[date] = vote
     }
 
@@ -37,7 +37,7 @@ class UserVotes(val userId: String) {
     /**
      * Returns an immutable copy of all votes cast by the user.
      */
-    fun getAllVotes(): Map<TimeSlot, Vote> {
+    fun getAllVotes(): Map<TimeSlot, Vote?> {
         return votes.toMap()
     }
 

@@ -1,5 +1,6 @@
 package com.example.syncup.data.repository.group
 
+import com.example.syncup.data.model.User
 import com.example.syncup.data.model.groups.Group
 import com.example.syncup.data.model.groups.GroupInvite
 import java.util.UUID
@@ -82,5 +83,10 @@ class InMemoryGroupsRepository : GroupsRepository {
      */
     override suspend fun getGroup(id: String): Group? {
         return groups.find { it.id == id }
+    }
+
+    override suspend fun addMember(groupId: String, userId: String) {
+        val group = groups.find { it.id == groupId } ?: return
+        group.addMember(User(userId, "User $userId", "user$userId@example.com"))
     }
 }
