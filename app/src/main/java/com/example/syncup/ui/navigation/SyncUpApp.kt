@@ -130,7 +130,7 @@ fun SyncUpApp(appContainer: AppContainer) {
         ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
             val eventVotingViewModel = remember {
-                EventVotingViewModel(appContainer.eventRepository)
+                EventVotingViewModel(appContainer.eventRepository, appContainer.groupsRepository)
             }
             EventDetailScreen(
                 viewModel = eventVotingViewModel,

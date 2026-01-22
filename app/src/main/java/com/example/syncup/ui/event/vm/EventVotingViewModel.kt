@@ -6,6 +6,7 @@ import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
 import com.example.syncup.data.model.events.VoteDraft
 import com.example.syncup.data.repository.event.EventRepository
+import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.event.uistate.EventVotingUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +27,7 @@ import kotlinx.coroutines.launch
  * - Decide how an event is finalized (that logic lives in the repository/domain layer).
  * - Handle navigation or UI rendering logic.
  */
-class EventVotingViewModel(private val eventRepo: EventRepository) : ViewModel() {
+class EventVotingViewModel(private val eventRepo: EventRepository, private val groupRepo: GroupsRepository) : ViewModel() {
 
     /**
      * Internal mutable UI state.
@@ -113,8 +114,8 @@ class EventVotingViewModel(private val eventRepo: EventRepository) : ViewModel()
         viewModelScope.launch {
             val voteDraft = _uiState.value.voteDraft ?: return@launch
             val event = _uiState.value.event ?: return@launch
-
-            eventRepo.submitVote(event.id, voteDraft)
+            val memberCount = groupRepo.getMemberCount(event.groupId)
+            eventRepo.submitVote(event.id, voteDraft, memberCount)
         }
     }
 

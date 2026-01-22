@@ -20,7 +20,8 @@ class Event(
     title: String,
     possibleSlots: Set<TimeSlot>,
     description: String,
-    val decisionMode: DecisionMode = DecisionMode.ALL_OR_NOTHING
+    val decisionMode: DecisionMode = DecisionMode.ALL_OR_NOTHING,
+    val eventTypeId : String? = null
 ) {
     var title: String = title
         private set

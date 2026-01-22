@@ -2,6 +2,7 @@ package com.example.syncup.data.repository.event
 
 import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.Event
+import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.VoteDraft
 
@@ -39,6 +40,7 @@ interface EventRepository {
      * @param title The event title.
      * @param possibleSlots All time slots that participants can vote for.
      * @param description Optional descriptive text for the event.
+     * @param eventTypeId identifier for the event type.
      *
      * @return The newly created [Event].
      */
@@ -47,7 +49,8 @@ interface EventRepository {
         title: String,
         possibleSlots: Set<TimeSlot>,
         description: String,
-        decisionMode: DecisionMode
+        decisionMode: DecisionMode,
+        eventTypeId: String?
     ): Event
 
     /**
@@ -73,6 +76,11 @@ interface EventRepository {
      */
     suspend fun submitVote(
         eventId: String,
-        voteDraft: VoteDraft
+        voteDraft: VoteDraft,
+        memberCount: Int
     )
+
+    suspend fun getEventTypesForGroup(groupId: String): Map<String, EventType>
+    suspend fun getEventTypesAsList(groupId: String): List<EventType>
+    suspend fun addEventType(groupId: String, type: String, color: Long) : EventType
 }

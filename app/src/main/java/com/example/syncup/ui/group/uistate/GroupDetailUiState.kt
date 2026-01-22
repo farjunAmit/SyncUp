@@ -1,7 +1,10 @@
 package com.example.syncup.ui.group.uistate
 
 import com.example.syncup.data.model.events.Event
+import com.example.syncup.data.model.events.EventType
+import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.groups.Group
+import java.time.LocalDate
 
 /**
  * GroupDetailUiState
@@ -14,5 +17,7 @@ import com.example.syncup.data.model.groups.Group
 data class GroupDetailUiState(
     val groups: List<Group> = emptyList(),
     val events: List<Event> = emptyList(),
+    val scheduledEvents: Map<LocalDate, List<Event>> = emptyMap(),
+    val eventTypes: Map<String, EventType> = emptyMap(),
     val group : Group? = null
 )

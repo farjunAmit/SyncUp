@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.syncup.ui.group.components.GroupCalendar
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 
 /**
@@ -94,7 +95,7 @@ fun GroupDetailScreen(
                 }
             }
             Surface(modifier = Modifier.padding(16.dp)) {
-                Text("Calendar (placeholder)", modifier = Modifier.padding(16.dp))
+                GroupCalendar(events = state.scheduledEvents, eventTypes = state.eventTypes)
             }
             LazyColumn(
                 modifier = Modifier
@@ -113,4 +114,3 @@ fun GroupDetailScreen(
         }
     }
 }
-

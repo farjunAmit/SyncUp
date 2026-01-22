@@ -9,6 +9,7 @@ import com.example.syncup.ui.event.uistate.CreateEventUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -23,6 +24,41 @@ class CreateEventViewModel(
     private val _uiState = MutableStateFlow(CreateEventUiState())
     val uiState: StateFlow<CreateEventUiState> = _uiState.asStateFlow()
 
+    fun loadEventTypes(groupId: String) {
+        viewModelScope.launch {
+            val eventTypes = eventRepo.getEventTypesAsList(groupId)
+
+            _uiState.update { current ->
+                current.copy(
+                    eventTypes = eventTypes,
+                    selectedEventType = current.selectedEventType ?: eventTypes.firstOrNull()
+                )
+            }
+        }
+    }
+
+    fun addEventType(groupId: String, type: String, color: Long) {
+        viewModelScope.launch {
+            val newType = eventRepo.addEventType(groupId, type, color)
+            val eventTypes = eventRepo.getEventTypesAsList(groupId)
+            _uiState.update { current ->
+                current.copy(
+                    eventTypes = eventTypes,
+                    selectedEventType = newType
+                )
+            }
+        }
+    }
+
+    fun setEventType(eventTypeId: String) {
+        _uiState.update { current ->
+            val eventType = current.eventTypes.find { it.id == eventTypeId }
+            current.copy(
+                selectedEventType = eventType
+            )
+        }
+    }
+
     /**
      * Creates a new event and optionally invites emails.
      */
@@ -31,10 +67,11 @@ class CreateEventViewModel(
         title: String,
         possibleSlots: Set<TimeSlot>,
         description: String,
-        decisionMode: DecisionMode
+        decisionMode: DecisionMode,
+        eventTypeId: String?
     ) {
         viewModelScope.launch {
-            eventRepo.create(groupId, title, possibleSlots, description, decisionMode)
+            eventRepo.create(groupId, title, possibleSlots, description, decisionMode, eventTypeId)
         }
     }
 }

@@ -2,6 +2,8 @@ package com.example.syncup.ui.group.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.syncup.data.model.events.Event
+import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.group.uistate.GroupDetailUiState
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /**
  * GroupDetailViewModel
@@ -69,8 +72,10 @@ class GroupDetailViewModel(
     fun loadEvents(groupId: String) {
         viewModelScope.launch {
             val events = eventRepo.getAll(groupId)
+            val eventTypes = eventRepo.getEventTypesForGroup(groupId)
+            val scheduledEvents = getScheduledEvents(events)
             _uiState.update { current ->
-                current.copy(events = events)
+                current.copy(events = events, scheduledEvents = scheduledEvents, eventTypes = eventTypes)
             }
         }
     }
@@ -86,5 +91,25 @@ class GroupDetailViewModel(
                 loadEvents(group.id)
             }
         }
+    }
+
+    private fun getScheduledEvents(eventList: List<Event>): Map<LocalDate, List<Event>>{
+        val scheduledEvents = mutableMapOf<LocalDate, MutableList<Event>>()
+        eventList.forEach {event ->
+            val finalDate = event.finalDate
+            if(finalDate != null){
+                val date = finalDate.date
+                if(!scheduledEvents.containsKey(date)){
+                    scheduledEvents[date] = mutableListOf()
+                }
+                scheduledEvents[date]!!.add(event)
+            }
+        }
+        // Convert the map to an immutable map
+        val result = mutableMapOf<LocalDate, List<Event>>()
+        for ((date, events) in scheduledEvents) {
+            result[date] = events
+        }
+        return result
     }
 }

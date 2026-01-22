@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import com.example.syncup.data.model.events.Event
 
 /**
  * Calendar component used during event creation to select possible event dates.
@@ -112,4 +113,3 @@ fun startOfWeekSunday(date: LocalDate): LocalDate {
 }
 
 fun max(a: LocalDate, b: LocalDate): LocalDate = if (a.isBefore(b)) b else a
-

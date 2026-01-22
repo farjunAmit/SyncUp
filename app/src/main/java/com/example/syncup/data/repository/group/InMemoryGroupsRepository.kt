@@ -89,4 +89,9 @@ class InMemoryGroupsRepository : GroupsRepository {
         val group = groups.find { it.id == groupId } ?: return
         group.addMember(User(userId, "User $userId", "user$userId@example.com"))
     }
+
+    override suspend fun getMemberCount(groupId: String): Int {
+        val group = groups.find { it.id == groupId } ?: return 0
+        return group.members.size
+    }
 }

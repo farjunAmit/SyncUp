@@ -3,6 +3,7 @@ package com.example.syncup.data.repository.event
 import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventStatus
+import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
 import com.example.syncup.data.model.events.VoteDraft
@@ -25,7 +26,7 @@ import java.util.UUID
  * - [GroupsRepository] is injected so that the repository can access group membership count
  *   (needed to determine when "everyone voted").
  */
-class InMemoryEventRepository(val groupRepo: GroupsRepository) : EventRepository {
+class InMemoryEventRepository() : EventRepository {
 
     /**
      * Local in-memory storage for events.
@@ -35,6 +36,7 @@ class InMemoryEventRepository(val groupRepo: GroupsRepository) : EventRepository
      * - In later phases, this will be replaced by a database or remote backend.
      */
     private val events = mutableListOf<Event>()
+    private val eventTypes = mutableListOf<EventType>()
 
     /**
      * Returns all events that belong to the given group.
@@ -68,10 +70,11 @@ class InMemoryEventRepository(val groupRepo: GroupsRepository) : EventRepository
         title: String,
         possibleSlots: Set<TimeSlot>,
         description: String,
-        decisionMode: DecisionMode
+        decisionMode: DecisionMode,
+        eventTypeId: String?
     ): Event {
         val eventId = UUID.randomUUID().toString()
-        val newEvent = Event(eventId, groupId, title, possibleSlots, description, decisionMode)
+        val newEvent = Event(eventId, groupId, title, possibleSlots, description, decisionMode, eventTypeId)
         events.add(newEvent)
         return newEvent
     }
@@ -101,14 +104,11 @@ class InMemoryEventRepository(val groupRepo: GroupsRepository) : EventRepository
      * - If no final date is found, the TODO indicates future handling (e.g. NO_MATCH + notification).
      * - This method is the "single point" where vote submission can trigger state transitions.
      */
-    override suspend fun submitVote(eventId: String, voteDraft: VoteDraft) {
+    override suspend fun submitVote(eventId: String, voteDraft: VoteDraft, memberCount: Int) {
         val event = events.find { it.id == eventId } ?: return
 
         // Store/update the user's votes for this event
         event.setNewVotesForUser(voteDraft)
-
-        // How many members are expected to vote (source of truth: the group)
-        val memberCount = groupRepo.getGroup(event.groupId)?.members?.size ?: 0
 
         // Auto-finalize only when everyone has voted
         if (memberCount == event.userVotes.size) {
@@ -130,6 +130,29 @@ class InMemoryEventRepository(val groupRepo: GroupsRepository) : EventRepository
                 event.updateStatus(EventStatus.DECIDED)
             }
         }
+    }
+
+    override suspend fun getEventTypesForGroup(groupId: String): Map<String, EventType> {
+        val eventTypesForGroup = eventTypes.filter { it.groupId == groupId }
+        val result = mutableMapOf<String, EventType>()
+        eventTypesForGroup.forEach { eventType ->
+            result[eventType.id] = eventType
+        }
+        return result
+    }
+
+    override suspend fun getEventTypesAsList(groupId: String): List<EventType> {
+        return eventTypes.filter { it.groupId == groupId }
+    }
+
+    override suspend fun addEventType(
+        groupId: String,
+        type: String,
+        color: Long
+    ) : EventType {
+        val eventType = EventType(UUID.randomUUID().toString(), groupId, type, color)
+        eventTypes.add(eventType)
+        return eventType
     }
 
     /**
