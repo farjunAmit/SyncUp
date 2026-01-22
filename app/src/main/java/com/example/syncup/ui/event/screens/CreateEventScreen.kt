@@ -1,34 +1,43 @@
 package com.example.syncup.ui.event.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.PartOfDay
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.ui.event.components.CreateEventCalendar
 import com.example.syncup.ui.event.components.TimeSlotChooseSheet
 import com.example.syncup.ui.event.vm.CreateEventViewModel
 import java.time.LocalDate
+import androidx.compose.runtime.collectAsState
+import com.example.syncup.ui.event.components.CreateEventTypeDialog
+import com.example.syncup.ui.event.components.EventTypesDropDown
 
 /**
  * Screen for creating a new event inside a specific group.
@@ -54,10 +63,18 @@ fun CreateEventScreen(
     groupId: String,
     onBack: () -> Unit
 ) {
+    val state = viewModel.uiState.collectAsState().value
+    val eventTypes = state.eventTypes
+    val currentEventType = state.selectedEventType
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     val possibleSlots = remember { mutableStateSetOf<TimeSlot>() }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    var decisionMode by remember { mutableStateOf(DecisionMode.ALL_OR_NOTHING) }
+    var showCreateNewTypeDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(groupId) {
+        viewModel.loadEventTypes(groupId)
+    }
 
     Scaffold(
         topBar = {
@@ -91,6 +108,25 @@ fun CreateEventScreen(
                 minLines = 3
             )
             Spacer(modifier = Modifier.Companion.height(8.dp))
+            Row (
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                EventTypesDropDown(
+                    eventTypes = eventTypes,
+                    currentEventType = currentEventType,
+                    onItemClick = {eventType ->
+                        viewModel.setEventType(eventType.id)
+                    })
+                IconButton(
+                    onClick = { showCreateNewTypeDialog = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Event Type"
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.Companion.height(8.dp))
             CreateEventCalendar(
                 onCellClick = { date ->
                     selectedDate = date
@@ -100,12 +136,42 @@ fun CreateEventScreen(
                 }
             )
             Spacer(modifier = Modifier.Companion.height(8.dp))
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = decisionMode == DecisionMode.ALL_OR_NOTHING,
+                    onClick = { decisionMode = DecisionMode.ALL_OR_NOTHING }
+                )
+                Text("All or nothing")
+            }
+            Spacer(modifier = Modifier.Companion.height(4.dp))
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = decisionMode == DecisionMode.POINTS,
+                    onClick = { decisionMode = DecisionMode.POINTS }
+                )
+                Text("Points")
+            }
             Button(
                 onClick = {
-                    viewModel.createEvent(groupId, title, possibleSlots, description)
+                    var possibleSlotsSort = possibleSlots.toList()
+                    possibleSlotsSort = possibleSlotsSort.sortedBy { it.date }
+                    viewModel.createEvent(
+                        groupId,
+                        title,
+                        possibleSlotsSort.toMutableSet(),
+                        description,
+                        decisionMode,
+                        currentEventType?.id
+                    )
                     onBack()
                 },
-                enabled = title.isNotBlank() && possibleSlots.isNotEmpty()
+                enabled = title.isNotBlank() && possibleSlots.isNotEmpty() && currentEventType!=null
             ) { Text("Create Event") }
         }
     }
@@ -132,6 +198,15 @@ fun CreateEventScreen(
                     possibleSlots.add(TimeSlot(date, partOfDay))
                 }
                 selectedDate = null
+            }
+        )
+    }
+    if (showCreateNewTypeDialog) {
+        CreateEventTypeDialog(
+            onDismissRequest = { showCreateNewTypeDialog = false },
+            onConfirm = { type, color ->
+                viewModel.addEventType(groupId, type, color)
+                showCreateNewTypeDialog = false
             }
         )
     }

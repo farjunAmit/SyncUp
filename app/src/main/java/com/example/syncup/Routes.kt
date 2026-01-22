@@ -20,6 +20,9 @@ object Routes {
 
     const val CREATE_EVENT = "createEvent/{groupId}"
 
+    const val EVENT_DETAIL = "event/{eventId}"
+
+
     /**
      * Builds a concrete navigation route for a specific group.
      *
@@ -35,4 +38,12 @@ object Routes {
      * @return A navigation route including the groupId parameter.
      */
     fun createEvent(groupId: String) = "createEvent/$groupId"
+
+    /**
+     * Builds a navigation route for viewing a specific event.
+     *
+     * @param eventId The unique identifier of the event.
+     * @return A navigation route including the eventId parameter.
+     */
+    fun eventDetail(eventId: String) = "event/$eventId"
 }

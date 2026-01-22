@@ -52,4 +52,19 @@ interface GroupsRepository {
      * @param id The unique identifier of the group.
      */
     suspend fun getGroup(id: String) : Group?
+
+    /**
+     * Adds a member to a group.
+     *
+     * @param groupId The unique identifier of the group.
+     * @param userId The unique identifier of the user to add.
+     */
+    suspend fun addMember(groupId: String, userId: String)
+
+    /**
+     * get number of members in a group
+     *
+     * @param groupId The unique identifier of the group.
+     */
+    suspend fun getMemberCount(groupId: String) : Int
 }

@@ -1,12 +1,16 @@
 package com.example.syncup.ui.group.screens
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -20,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.syncup.ui.group.components.GroupCalendar
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 
 /**
@@ -44,6 +49,7 @@ fun GroupDetailScreen(
     groupId: String?,
     onGroupSelected: (String) -> Unit,
     onCreateEvent: () -> Unit,
+    onEventSelected: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value
@@ -67,14 +73,14 @@ fun GroupDetailScreen(
                 title = { Text("${state.group?.name}") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { onCreateEvent() }) {
-                Icon(Icons.Filled.DateRange, contentDescription = "Add event")
+                Icon(imageVector = Icons.Default.EditCalendar, contentDescription = "Create Event")
             }
         }
     ) { innerPadding ->
@@ -89,9 +95,22 @@ fun GroupDetailScreen(
                 }
             }
             Surface(modifier = Modifier.padding(16.dp)) {
-                Text("Calendar (placeholder)", modifier = Modifier.padding(16.dp))
+                GroupCalendar(events = state.scheduledEvents, eventTypes = state.eventTypes)
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(state.events) { event ->
+                    Text(event.title,
+                        modifier = Modifier.clickable {
+                            onEventSelected(event.id)
+                        }
+                    )
+                }
             }
         }
     }
 }
-

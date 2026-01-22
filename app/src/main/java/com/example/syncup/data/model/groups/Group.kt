@@ -1,5 +1,7 @@
 package com.example.syncup.data.model.groups
 
+import com.example.syncup.data.model.User
+
 /**
  * Group
  *
@@ -9,7 +11,7 @@ package com.example.syncup.data.model.groups
  * The name can only be updated through the rename() function
  * to keep changes controlled and explicit.
  */
-class Group(val id: String, name:String) {
+class Group(val id: String, name:String, val members: MutableList<User> = mutableListOf()) {
     var name: String = name
         private set
     /**
@@ -20,5 +22,13 @@ class Group(val id: String, name:String) {
      */
     fun rename(newName: String) {
         name = newName
+    }
+
+    /**
+     * Adds a new member to the group.
+     *
+     */
+    fun addMember(user: User) {
+        members.add(user)
     }
 }
