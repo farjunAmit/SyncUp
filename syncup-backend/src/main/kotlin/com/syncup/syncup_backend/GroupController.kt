@@ -1,7 +1,8 @@
 package com.syncup.syncup_backend
 
+import com.syncup.syncup_backend.dto.AddGroupMemberRequestDto
 import com.syncup.syncup_backend.dto.CreateGroupRequestDto
-import com.syncup.syncup_backend.dto.FetchGroupsRequestDto
+import com.syncup.syncup_backend.dto.GroupSummaryDto
 import com.syncup.syncup_backend.services.GroupService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,7 +18,7 @@ class GroupController(
     private val groupService: GroupService
 ) {
     @GetMapping("/{id}")
-    fun getGroups(@PathVariable("id") id: Long): List<FetchGroupsRequestDto> {
+    fun getGroups(@PathVariable("id") id: Long): List<GroupSummaryDto> {
         return groupService.getGroups(id)
     }
 
@@ -25,20 +26,33 @@ class GroupController(
     fun createGroup(
         @PathVariable("userId") userId: Long,
         @RequestBody createGroupRequest: CreateGroupRequestDto
-    ): FetchGroupsRequestDto {
+    ): GroupSummaryDto {
         return groupService.createGroup(createGroupRequest,userId)
     }
 
     @PostMapping("/rename/{groupId}")
     fun renameGroup(
         @PathVariable("groupId") groupId: Long,
-        @RequestBody name: String): FetchGroupsRequestDto{
+        @RequestBody name: String): GroupSummaryDto{
         return groupService.renameGroup(groupId,name)
     }
 
     @DeleteMapping("/delete/{groupId}")
     fun deleteGroup(
-        @PathVariable("groupId") groupId: Long): FetchGroupsRequestDto{
-        return groupService.deleteGroup(groupId)
+        @PathVariable("groupId") groupId: Long){
+        groupService.deleteGroup(groupId)
     }
+
+    @PostMapping("/addMember/{groupId}")
+    fun addMember(
+        @PathVariable("groupId") groupId: Long,
+        @RequestBody addGroupMemberDto: AddGroupMemberRequestDto): GroupSummaryDto{
+        return groupService.addMember(groupId,addGroupMemberDto)
+    }
+
+    @GetMapping("/size/{groupId}")
+    fun getGroupSize(@PathVariable("groupId") groupId: Long): Int {
+        return groupService.getGroupSize(groupId)
+    }
+
 }

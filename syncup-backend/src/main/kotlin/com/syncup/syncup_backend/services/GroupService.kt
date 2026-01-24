@@ -1,7 +1,8 @@
 package com.syncup.syncup_backend.services
 
+import com.syncup.syncup_backend.dto.AddGroupMemberRequestDto
 import com.syncup.syncup_backend.dto.CreateGroupRequestDto
-import com.syncup.syncup_backend.dto.FetchGroupsRequestDto
+import com.syncup.syncup_backend.dto.GroupSummaryDto
 import com.syncup.syncup_backend.entity.GroupMemberEntity
 import com.syncup.syncup_backend.exceptions.GroupNotFoundException
 import com.syncup.syncup_backend.exceptions.UserNotFoundException
@@ -20,12 +21,12 @@ class GroupService(
     private val userRepository: UserRepository,
     private val groupMemberRepository: GroupMemberRepository
 ) {
-    fun getGroups(id: Long): List<FetchGroupsRequestDto> {
+    fun getGroups(id: Long): List<GroupSummaryDto> {
         return groupRepository.findUserGroups(id).map { it.toDto() }
     }
 
     @Transactional
-    fun createGroup(createGroupRequest: CreateGroupRequestDto, userId: Long): FetchGroupsRequestDto {
+    fun createGroup(createGroupRequest: CreateGroupRequestDto, userId: Long): GroupSummaryDto {
         val group = groupRepository.save(createGroupRequest.toEntity())
         val invitedEmails = createGroupRequest.invitedEmails
         val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
@@ -42,15 +43,26 @@ class GroupService(
         return group.toDto()
     }
 
-    fun renameGroup(groupId : Long, name : String){
+    fun renameGroup(groupId : Long, name : String): GroupSummaryDto{
         val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
         group.name = name
-        groupRepository.save(group)
+        return groupRepository.save(group).toDto()
     }
 
     fun deleteGroup(groupId : Long){
         val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
         groupRepository.delete(group)
+    }
+
+    fun addMember(groupId : Long, addGroupMemberDto: AddGroupMemberRequestDto): GroupSummaryDto{
+        val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
+        val user = userRepository.findById(addGroupMemberRequestDto.userId).orElseThrow { UserNotFoundException(addGroupMemberRequestDto.userId) }
+        groupMemberRepository.save(GroupMemberEntity(group, user))
+        return group.toDto()
+    }
+
+    fun getGroupSize(groupId: Long): Int {
+        return groupMemberRepository.countByGroup_Id(groupId)
     }
 
 }

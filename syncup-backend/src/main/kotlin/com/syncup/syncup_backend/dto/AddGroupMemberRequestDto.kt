@@ -1,6 +1,5 @@
 package com.syncup.syncup_backend.dto
 
-data class AddGroupMemberDto(
-    val groupId: Long,
+data class AddGroupMemberRequestDto(
     val userId: Long
 )
