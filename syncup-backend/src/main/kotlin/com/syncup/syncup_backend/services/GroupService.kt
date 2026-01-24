@@ -1,8 +1,9 @@
 package com.syncup.syncup_backend.services
 
 import com.syncup.syncup_backend.dto.CreateGroupRequestDto
-import com.syncup.syncup_backend.dto.FetchGroupsDto
+import com.syncup.syncup_backend.dto.FetchGroupsRequestDto
 import com.syncup.syncup_backend.entity.GroupMemberEntity
+import com.syncup.syncup_backend.exceptions.GroupNotFoundException
 import com.syncup.syncup_backend.exceptions.UserNotFoundException
 import com.syncup.syncup_backend.exceptions.UserNotFoundByEmailException
 import com.syncup.syncup_backend.repositories.GroupMemberRepository
@@ -19,12 +20,12 @@ class GroupService(
     private val userRepository: UserRepository,
     private val groupMemberRepository: GroupMemberRepository
 ) {
-    fun getGroups(id: Long): List<FetchGroupsDto> {
+    fun getGroups(id: Long): List<FetchGroupsRequestDto> {
         return groupRepository.findUserGroups(id).map { it.toDto() }
     }
 
     @Transactional
-    fun createGroup(createGroupRequest: CreateGroupRequestDto, userId: Long): FetchGroupsDto {
+    fun createGroup(createGroupRequest: CreateGroupRequestDto, userId: Long): FetchGroupsRequestDto {
         val group = groupRepository.save(createGroupRequest.toEntity())
         val invitedEmails = createGroupRequest.invitedEmails
         val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
@@ -40,4 +41,16 @@ class GroupService(
         }
         return group.toDto()
     }
+
+    fun renameGroup(groupId : Long, name : String){
+        val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
+        group.name = name
+        groupRepository.save(group)
+    }
+
+    fun deleteGroup(groupId : Long){
+        val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
+        groupRepository.delete(group)
+    }
+
 }
