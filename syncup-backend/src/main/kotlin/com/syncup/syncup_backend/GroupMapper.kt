@@ -4,20 +4,20 @@ import com.syncup.syncup_backend.dto.CreateGroupRequestDto
 import com.syncup.syncup_backend.dto.GroupSummaryDto
 import com.syncup.syncup_backend.entity.GroupEntity
 
-fun GroupEntity.toDto(): GroupSummaryDto {
+fun GroupEntity.toGroupDto(): GroupSummaryDto {
     return GroupSummaryDto(
         id = this.id,
         name = this.name,
     )
 }
 
-fun GroupSummaryDto.toEntity(): GroupEntity{
+fun GroupSummaryDto.toGroupEntity(): GroupEntity{
     return GroupEntity(
         name = this.name,
     )
 }
 
-fun CreateGroupRequestDto.toEntity(): GroupEntity{
+fun CreateGroupRequestDto.toGroupEntity(): GroupEntity{
     return GroupEntity(
         name = this.name,
     )
