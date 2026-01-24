@@ -1,7 +1,7 @@
 package com.syncup.syncup_backend.dto
 
-data class GroupDto(
+data class CreateGroupRequestDto(
     val id: Long,
     val name: String,
-    val members: List<Long>
+    val invitedEmails : List<String>
 )
