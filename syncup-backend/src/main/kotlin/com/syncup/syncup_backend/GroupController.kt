@@ -24,9 +24,9 @@ class GroupController(
     @PostMapping
     @RequestMapping("/create/{userId}")
     fun createGroup(
-        @PathVariable("userId") id: Long,
+        @PathVariable("userId") userId: Long,
         @RequestBody createGroupRequest: CreateGroupRequestDto
-    ): GroupDto {
-        return groupService.createGroup(createGroupRequest, userId)
+    ): FetchGroupsDto {
+        return groupService.createGroup(createGroupRequest,userId)
     }
 }

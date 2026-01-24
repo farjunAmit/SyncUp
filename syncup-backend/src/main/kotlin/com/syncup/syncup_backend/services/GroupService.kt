@@ -2,7 +2,6 @@ package com.syncup.syncup_backend.services
 
 import com.syncup.syncup_backend.dto.CreateGroupRequestDto
 import com.syncup.syncup_backend.dto.FetchGroupsDto
-import com.syncup.syncup_backend.dto.GroupDto
 import com.syncup.syncup_backend.entity.GroupMemberEntity
 import com.syncup.syncup_backend.exceptions.UserNotFoundException
 import com.syncup.syncup_backend.exceptions.UserNotFoundByEmailException
@@ -35,7 +34,7 @@ class GroupService(
             if (invitedUser != null) {
                 groupMemberRepository.save(GroupMemberEntity(group, invitedUser))
             }
-            else{
+            else {
                 throw UserNotFoundByEmailException(email)
             }
         }
