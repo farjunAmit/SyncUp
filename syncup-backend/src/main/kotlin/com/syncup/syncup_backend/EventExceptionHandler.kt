@@ -21,4 +21,11 @@ class EventExceptionHandler {
         "errorCode" to "ILLEGAL_ARGUMENT",
         "message" to ex.message
     )
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleGenericException(ex: Exception) = mapOf(
+        "errorCode" to "ILLEGAL_ARGUMENT",
+        "message" to ex.message
+    )
 }

@@ -24,4 +24,5 @@ interface VoteRepository : JpaRepository<VoteEntity, Long> {
     """)
     fun findMyVotes(eventId: Long, userId: Long): List<Array<Any>>
 
+    fun deleteByEvent_IdAndUserId(eventId: Long, userId: Long)
 }

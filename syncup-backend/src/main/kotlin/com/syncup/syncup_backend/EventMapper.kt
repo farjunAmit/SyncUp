@@ -4,6 +4,7 @@ import com.syncup.syncup_backend.dto.EventCreateRequestDto
 import com.syncup.syncup_backend.dto.EventForVotingDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
 import com.syncup.syncup_backend.dto.SlotVotingSummaryDto
+import com.syncup.syncup_backend.dto.SubmitVoteRequestDto
 import com.syncup.syncup_backend.dto.TimeSlotDto
 import com.syncup.syncup_backend.entity.EventEntity
 import com.syncup.syncup_backend.entity.EventPossibleSlotEntity
@@ -58,3 +59,4 @@ fun TimeSlotDto.toModel(): TimeSlot {
         partOfDay = this.partOfDay
     )
 }
+

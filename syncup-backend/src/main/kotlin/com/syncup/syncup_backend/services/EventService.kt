@@ -5,8 +5,11 @@ import com.syncup.syncup_backend.dto.EventForVotingDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
 import com.syncup.syncup_backend.dto.SlotVotingSummaryDto
 import com.syncup.syncup_backend.entity.EventPossibleSlotEntity
+import com.syncup.syncup_backend.dto.SubmitVoteRequestDto
+import com.syncup.syncup_backend.entity.VoteEntity
 import com.syncup.syncup_backend.exceptions.EmptyPossibleSlotsException
 import com.syncup.syncup_backend.exceptions.EventNotFoundException
+import com.syncup.syncup_backend.exceptions.NotValidPossibleSlotException
 import com.syncup.syncup_backend.model.Vote
 import com.syncup.syncup_backend.repositories.EventPossibleSlotRepository
 import com.syncup.syncup_backend.repositories.EventRepository
@@ -92,4 +95,34 @@ class EventService(
         eventPossibleSlotRepository.saveAll(possibleSlotsEntities)
         return newEvent.toEventDto()
     }
+
+    fun deleteEvent(eventId: Long) {
+        if(!eventRepository.existsById(eventId)) {
+            throw EventNotFoundException(eventId)
+        }
+        eventRepository.deleteById(eventId)
+    }
+
+    @Transactional
+    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) {
+        val slots = eventPossibleSlotRepository.findByEvent_Id(submitVoteRequestDto.eventId)
+        val slotMap = slots.associateBy { it.timeSlot }
+
+        voteRepository.deleteByEvent_IdAndUserId(submitVoteRequestDto.eventId, submitVoteRequestDto.userId)
+
+        val votes = submitVoteRequestDto.votes.map { voteDto ->
+            val slotEntity = slotMap[voteDto.timeSlotDto.toModel()]
+                ?: throw NotValidPossibleSlotException(submitVoteRequestDto.eventId)
+
+            VoteEntity(
+                event = slotEntity.event,
+                slot = slotEntity,
+                userId = submitVoteRequestDto.userId,
+                vote = voteDto.vote
+            )
+        }
+
+        voteRepository.saveAll(votes)
+    }
+
 }
