@@ -3,9 +3,9 @@ spring:
     name: syncup-backend
 
   datasource:
-    url: jdbc:postgresql://db.cteobhqgjxocepuksnxw.supabase.co:5432/postgres
-    username: "postgres"
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres
+    username: "postgres.cteobhqgjxocepuksnxw"
+    password: _RS2*7P$#Aq&Wfb
     driver-class-name: org.postgresql.Driver
 
   jpa:

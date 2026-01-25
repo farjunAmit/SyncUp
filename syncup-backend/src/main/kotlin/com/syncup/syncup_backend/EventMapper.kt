@@ -1,10 +1,14 @@
 package com.syncup.syncup_backend
 
+import com.syncup.syncup_backend.dto.EventCreateRequestDto
 import com.syncup.syncup_backend.dto.EventForVotingDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
 import com.syncup.syncup_backend.dto.SlotVotingSummaryDto
+import com.syncup.syncup_backend.dto.TimeSlotDto
 import com.syncup.syncup_backend.entity.EventEntity
 import com.syncup.syncup_backend.entity.EventPossibleSlotEntity
+import com.syncup.syncup_backend.model.EventStatus
+import com.syncup.syncup_backend.model.TimeSlot
 
 fun EventEntity.toEventDto(): EventSummaryDto {
     return EventSummaryDto(
@@ -26,5 +30,31 @@ fun EventEntity.toEventDto(slots: List<SlotVotingSummaryDto>) : EventForVotingDt
         groupId = this.groupId,
         eventTypeId = this.eventTypeId,
         slots = slots
+    )
+}
+
+fun EventCreateRequestDto.toEventEntity(): EventEntity {
+    return EventEntity(
+        name = this.name,
+        description = this.description,
+        groupId = groupId,
+        eventTypeId = this.eventTypeId,
+        date = null,
+        status = EventStatus.VOTING,
+        decisionMode = this.decisionMode
+    )
+}
+
+fun TimeSlot.toDto(): TimeSlotDto {
+    return TimeSlotDto(
+        date = this.date,
+        partOfDay = this.partOfDay
+    )
+}
+
+fun TimeSlotDto.toModel(): TimeSlot {
+    return TimeSlot(
+        date = this.date,
+        partOfDay = this.partOfDay
     )
 }

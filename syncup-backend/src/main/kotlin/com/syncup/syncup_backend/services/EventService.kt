@@ -1,22 +1,29 @@
 package com.syncup.syncup_backend.services
 
+import com.syncup.syncup_backend.dto.EventCreateRequestDto
 import com.syncup.syncup_backend.dto.EventForVotingDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
 import com.syncup.syncup_backend.dto.SlotVotingSummaryDto
+import com.syncup.syncup_backend.entity.EventPossibleSlotEntity
+import com.syncup.syncup_backend.exceptions.EmptyPossibleSlotsException
 import com.syncup.syncup_backend.exceptions.EventNotFoundException
 import com.syncup.syncup_backend.model.Vote
 import com.syncup.syncup_backend.repositories.EventPossibleSlotRepository
 import com.syncup.syncup_backend.repositories.EventRepository
 import com.syncup.syncup_backend.repositories.VoteRepository
+import com.syncup.syncup_backend.toDto
 import com.syncup.syncup_backend.toEventDto
+import com.syncup.syncup_backend.toEventEntity
+import com.syncup.syncup_backend.toModel
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
-class EventService (
+class EventService(
     private val eventRepository: EventRepository,
     private val eventPossibleSlotRepository: EventPossibleSlotRepository,
     private val voteRepository: VoteRepository
-){
+) {
     fun getEvents(groupId: Long): List<EventSummaryDto> {
         return eventRepository.findByGroupId(groupId).map { it.toEventDto() }
     }
@@ -61,12 +68,28 @@ class EventService (
             val myVote = myVoteBySlotId[slotId]
             slotVotingList.add(
                 SlotVotingSummaryDto(
-                    timeSlot = requireNotNull(slot.timeSlot),
+                    timeSlot = requireNotNull(slot.timeSlot).toDto(),
                     votes = votesForSlot,
                     myVote = myVote
                 )
             )
         }
         return event.toEventDto(slotVotingList)
+    }
+
+    @Transactional
+    fun createEvent(event: EventCreateRequestDto): EventSummaryDto {
+        if(event.possibleSlots.isEmpty()) {
+            throw EmptyPossibleSlotsException(event.name)
+        }
+        val newEvent = eventRepository.save(event.toEventEntity())
+        val possibleSlotsEntities = event.possibleSlots.map { slotDto ->
+            EventPossibleSlotEntity(
+                event = newEvent,
+                timeSlot = slotDto.toModel()
+            )
+        }
+        eventPossibleSlotRepository.saveAll(possibleSlotsEntities)
+        return newEvent.toEventDto()
     }
 }

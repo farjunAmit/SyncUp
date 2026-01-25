@@ -3,6 +3,7 @@ plugins {
 	kotlin("plugin.spring") version "2.2.21"
 	id("org.springframework.boot") version "4.0.2"
 	id("io.spring.dependency-management") version "1.1.7"
+	kotlin("plugin.jpa") version "1.9.22"
 }
 
 group = "com.syncup"
@@ -21,7 +22,6 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("androidx.room:room-common-jvm:2.8.4")
     testImplementation("com.h2database:h2")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")

@@ -4,7 +4,7 @@ import com.syncup.syncup_backend.model.TimeSlot
 import com.syncup.syncup_backend.model.Vote
 
 data class SlotVotingSummaryDto(
-    val timeSlot: TimeSlot,
+    val timeSlot: TimeSlotDto,
     val votes: Map<Vote, Int>,
     val myVote: Vote?
 )
