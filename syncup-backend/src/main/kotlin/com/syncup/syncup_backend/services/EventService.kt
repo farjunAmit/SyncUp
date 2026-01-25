@@ -10,9 +10,13 @@ import com.syncup.syncup_backend.entity.VoteEntity
 import com.syncup.syncup_backend.exceptions.EmptyPossibleSlotsException
 import com.syncup.syncup_backend.exceptions.EventNotFoundException
 import com.syncup.syncup_backend.exceptions.NotValidPossibleSlotException
+import com.syncup.syncup_backend.model.DecisionMode
 import com.syncup.syncup_backend.model.Vote
+import com.syncup.syncup_backend.projection.SlotVoteSummary
 import com.syncup.syncup_backend.repositories.EventPossibleSlotRepository
 import com.syncup.syncup_backend.repositories.EventRepository
+import com.syncup.syncup_backend.repositories.GroupMemberRepository
+import com.syncup.syncup_backend.repositories.GroupRepository
 import com.syncup.syncup_backend.repositories.VoteRepository
 import com.syncup.syncup_backend.toDto
 import com.syncup.syncup_backend.toEventDto
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class EventService(
+    private val groupMemberRepository: GroupMemberRepository,
     private val eventRepository: EventRepository,
     private val eventPossibleSlotRepository: EventPossibleSlotRepository,
     private val voteRepository: VoteRepository
@@ -107,7 +112,9 @@ class EventService(
     fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) {
         val slots = eventPossibleSlotRepository.findByEvent_Id(submitVoteRequestDto.eventId)
         val slotMap = slots.associateBy { it.timeSlot }
-
+        val event = eventRepository.findById(submitVoteRequestDto.eventId).orElseThrow{
+            EventNotFoundException(submitVoteRequestDto.eventId)
+        }
         voteRepository.deleteByEvent_IdAndUserId(submitVoteRequestDto.eventId, submitVoteRequestDto.userId)
 
         val votes = submitVoteRequestDto.votes.map { voteDto ->
@@ -121,8 +128,44 @@ class EventService(
                 vote = voteDto.vote
             )
         }
-
         voteRepository.saveAll(votes)
+        val slotsAfterVoting = voteRepository.getSlotSummaries(submitVoteRequestDto.eventId)
+        val groupSize = groupMemberRepository.countByGroup_Id(event.groupId)
+        val countUser = voteRepository.countDistinctUserIdByEvent_Id(submitVoteRequestDto.eventId)
+        if(countUser != groupSize)
+            return
+        var bestSlot : SlotVoteSummary? = null
+        if (event.decisionMode == DecisionMode.ALL_OR_NOTHING) {
+            for(slotSummary in slotsAfterVoting ) {
+                val nullCount =
+                    slotSummary.getTotal() -
+                            slotSummary.getYesCount() -
+                            slotSummary.getYesButCount() -
+                            slotSummary.getNoCount()
+                if (slotSummary.getYesCount() == groupSize.toLong()) {
+                    bestSlot = slotSummary
+                    break
+                }
+                if (slotSummary.getTotal() == groupSize.toLong() && slotSummary.getNoCount()+nullCount == 0L) {
+                    if (bestSlot == null || slotSummary.getYesCount() > bestSlot!!.getYesCount()) {
+                        bestSlot = slotSummary
+                    }
+                }
+            }
+        }
+
+        if (event.decisionMode == DecisionMode.POINTS) {
+            slotsAfterVoting.forEach { slotSummary ->
+                val slotPoints = slotSummary.getYesCount() * 2 + slotSummary.getYesButCount()
+                val bestSlotPoints =
+                    bestSlot?.let { it.getYesCount() * 2 + it.getYesButCount() } ?: Long.MIN_VALUE
+
+                if (slotPoints > bestSlotPoints) {
+                    bestSlot = slotSummary
+                }
+            }
+        }
+        //Update the event with the decided slot and return event
     }
 
 }

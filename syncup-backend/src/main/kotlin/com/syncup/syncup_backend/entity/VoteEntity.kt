@@ -25,7 +25,7 @@ class VoteEntity(
     var userId: Long? = null,
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     var vote: Vote? = null
 ) {
 
