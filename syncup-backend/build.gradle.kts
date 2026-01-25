@@ -21,7 +21,8 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	testImplementation("com.h2database:h2")
+    implementation("androidx.room:room-common-jvm:2.8.4")
+    testImplementation("com.h2database:h2")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	runtimeOnly("org.postgresql:postgresql")
