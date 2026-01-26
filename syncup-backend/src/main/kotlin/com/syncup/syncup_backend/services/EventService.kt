@@ -3,12 +3,15 @@ package com.syncup.syncup_backend.services
 import com.syncup.syncup_backend.dto.EventCreateRequestDto
 import com.syncup.syncup_backend.dto.EventForVotingDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
+import com.syncup.syncup_backend.dto.EventTypeCreateRequestDto
+import com.syncup.syncup_backend.dto.EventTypeDto
 import com.syncup.syncup_backend.dto.SlotVotingSummaryDto
 import com.syncup.syncup_backend.entity.EventPossibleSlotEntity
 import com.syncup.syncup_backend.dto.SubmitVoteRequestDto
 import com.syncup.syncup_backend.entity.VoteEntity
 import com.syncup.syncup_backend.exceptions.EmptyPossibleSlotsException
 import com.syncup.syncup_backend.exceptions.EventNotFoundException
+import com.syncup.syncup_backend.exceptions.GroupNotFoundException
 import com.syncup.syncup_backend.exceptions.NotValidPossibleSlotException
 import com.syncup.syncup_backend.exceptions.PossibleSlotNotFoundException
 import com.syncup.syncup_backend.model.DecisionMode
@@ -17,11 +20,15 @@ import com.syncup.syncup_backend.model.Vote
 import com.syncup.syncup_backend.projection.SlotVoteSummary
 import com.syncup.syncup_backend.repositories.EventPossibleSlotRepository
 import com.syncup.syncup_backend.repositories.EventRepository
+import com.syncup.syncup_backend.repositories.EventTypeRepository
 import com.syncup.syncup_backend.repositories.GroupMemberRepository
+import com.syncup.syncup_backend.repositories.GroupRepository
 import com.syncup.syncup_backend.repositories.VoteRepository
 import com.syncup.syncup_backend.toDto
 import com.syncup.syncup_backend.toEventDto
 import com.syncup.syncup_backend.toEventEntity
+import com.syncup.syncup_backend.toEventTypeDto
+import com.syncup.syncup_backend.toEventTypeEntity
 import com.syncup.syncup_backend.toModel
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -31,7 +38,9 @@ class EventService(
     private val groupMemberRepository: GroupMemberRepository,
     private val eventRepository: EventRepository,
     private val eventPossibleSlotRepository: EventPossibleSlotRepository,
-    private val voteRepository: VoteRepository
+    private val voteRepository: VoteRepository,
+    private val eventTypeRepository: EventTypeRepository,
+    private val groupRepository: GroupRepository
 ) {
     fun getEvents(groupId: Long): List<EventSummaryDto> {
         return eventRepository.findByGroupId(groupId).map { it.toEventDto() }
@@ -182,5 +191,17 @@ class EventService(
         event.status = EventStatus.UNRESOLVED
         eventRepository.save(event)
         return event.toEventDto()
+    }
+
+    fun getEventTypes(groupId : Long): List<EventTypeDto> {
+        val eventTypes = eventTypeRepository.findByGroupId(groupId)
+        return eventTypes.map { it.toEventTypeDto() }
+    }
+
+    fun createEventType(eventTypeDto: EventTypeCreateRequestDto): EventTypeDto {
+        val group = groupRepository.findById(eventTypeDto.groupId).orElseThrow{GroupNotFoundException(eventTypeDto.groupId)}
+        val eventTypeEntity = eventTypeDto.toEventTypeEntity(group)
+        val savedEntity = eventTypeRepository.save(eventTypeEntity)
+        return savedEntity.toEventTypeDto()
     }
 }

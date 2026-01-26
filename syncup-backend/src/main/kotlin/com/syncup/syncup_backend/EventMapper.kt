@@ -3,11 +3,13 @@ package com.syncup.syncup_backend
 import com.syncup.syncup_backend.dto.EventCreateRequestDto
 import com.syncup.syncup_backend.dto.EventForVotingDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
+import com.syncup.syncup_backend.dto.EventTypeCreateRequestDto
+import com.syncup.syncup_backend.dto.EventTypeDto
 import com.syncup.syncup_backend.dto.SlotVotingSummaryDto
-import com.syncup.syncup_backend.dto.SubmitVoteRequestDto
 import com.syncup.syncup_backend.dto.TimeSlotDto
 import com.syncup.syncup_backend.entity.EventEntity
-import com.syncup.syncup_backend.entity.EventPossibleSlotEntity
+import com.syncup.syncup_backend.entity.EventTypeEntity
+import com.syncup.syncup_backend.entity.GroupEntity
 import com.syncup.syncup_backend.model.EventStatus
 import com.syncup.syncup_backend.model.TimeSlot
 
@@ -57,6 +59,23 @@ fun TimeSlotDto.toModel(): TimeSlot {
     return TimeSlot(
         date = this.date,
         partOfDay = this.partOfDay
+    )
+}
+
+fun EventTypeEntity.toEventTypeDto() : EventTypeDto{
+    return EventTypeDto(
+        id = this.id,
+        type = this.name,
+        groupId = this.group!!.id,
+        color = this.color
+    )
+}
+
+fun EventTypeCreateRequestDto.toEventTypeEntity(groupEntity: GroupEntity) : EventTypeEntity{
+    return EventTypeEntity(
+        group = groupEntity,
+        name = this.type,
+        color = this.color,
     )
 }
 

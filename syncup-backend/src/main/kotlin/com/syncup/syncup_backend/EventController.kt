@@ -3,6 +3,8 @@ package com.syncup.syncup_backend
 import com.syncup.syncup_backend.dto.EventCreateRequestDto
 import com.syncup.syncup_backend.dto.EventForVotingDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
+import com.syncup.syncup_backend.dto.EventTypeCreateRequestDto
+import com.syncup.syncup_backend.dto.EventTypeDto
 import com.syncup.syncup_backend.dto.SubmitVoteRequestDto
 import com.syncup.syncup_backend.services.EventService
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -38,8 +40,18 @@ class EventController (
         eventService.deleteEvent(eventId)
     }
 
-    @PutMapping
+    @PostMapping("/submit-votes")
     fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) : EventSummaryDto{
-        eventService.submitVotes(submitVoteRequestDto)
+        return eventService.submitVotes(submitVoteRequestDto)
+    }
+
+    @GetMapping("/types/{groupId}")
+    fun getEventTypes(@PathVariable("groupId") groupId: Long): List<EventTypeDto> {
+        return eventService.getEventTypes(groupId)
+    }
+
+    @PutMapping("types/create")
+    fun createEventType(eventCreateDto: EventTypeCreateRequestDto): EventTypeDto {
+        return eventService.createEventType(eventCreateDto)
     }
 }
