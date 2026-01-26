@@ -36,4 +36,11 @@ class EventExceptionHandler {
         "errorCode" to "EVENT_SLOT_CONFLICT",
         "message" to ex.message
     )
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun handleEventFullException(ex : IllegalStateException) = mapOf(
+        "errorCode" to "PASSWORD_HASH_FAILED",
+        "message" to ex.message
+    )
 }

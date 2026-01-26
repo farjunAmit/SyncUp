@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import com.example.syncup.data.AppContainer
 import com.example.syncup.ui.navigation.SyncUpApp
 import com.example.syncup.ui.theme.SyncUpTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * MainActivity
@@ -21,6 +22,7 @@ import com.example.syncup.ui.theme.SyncUpTheme
  * - Applying the app theme and top-level surface
  * - Launching the root composable (SyncUpApp) which owns navigation
  */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     // App-wide dependencies are created once and passed down to the UI layer.

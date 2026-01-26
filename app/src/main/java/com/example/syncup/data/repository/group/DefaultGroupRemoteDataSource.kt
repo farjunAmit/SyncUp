@@ -2,8 +2,9 @@ package com.example.syncup.data.repository.group
 
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
+import javax.inject.Inject
 
-class DefaultGroupRemoteDataSource(
+class DefaultGroupRemoteDataSource @Inject constructor(
     private val api: GroupApi
 ) : GroupRemoteDataSource {
 

@@ -1,6 +1,7 @@
 package com.syncup.syncup_backend
 
 import com.syncup.syncup_backend.dto.UserDto
+import com.syncup.syncup_backend.dto.RegisterRequestDto
 import com.syncup.syncup_backend.entity.UserEntity
 
 fun UserDto.toUserEntity(password: String): UserEntity {
@@ -16,5 +17,13 @@ fun UserEntity.toUserDto(): UserDto{
         id = this.id,
         username = this.username,
         email = this.email
+    )
+}
+
+fun RegisterRequestDto.toUserEntity(hashPassword : String): UserEntity {
+    return UserEntity(
+        username = this.username,
+        email = this.email,
+        password = hashPassword
     )
 }

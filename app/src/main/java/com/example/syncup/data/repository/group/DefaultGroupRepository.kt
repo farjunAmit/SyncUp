@@ -3,9 +3,10 @@ package com.example.syncup.data.repository.group
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
 import com.example.syncup.data.model.groups.Group
+import javax.inject.Inject
 
 
-class DefaultGroupsRepository(
+class DefaultGroupsRepository @Inject constructor(
     private val remoteDataSource: GroupRemoteDataSource
 ) : GroupsRepository {
     override suspend fun getAll(): List<Group> {

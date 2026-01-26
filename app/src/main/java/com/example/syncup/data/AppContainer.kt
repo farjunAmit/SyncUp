@@ -1,5 +1,6 @@
 package com.example.syncup.data
 
+import android.content.Context
 import com.example.syncup.data.repository.event.InMemoryEventRepository
 import com.example.syncup.data.repository.group.DefaultGroupRemoteDataSource
 import com.example.syncup.data.repository.group.DefaultGroupsRepository
@@ -18,14 +19,8 @@ import retrofit2.converter.gson.GsonConverterFactory
  * of GroupsRepository and serves as a lightweight alternative
  * to a full dependency injection framework.
  */
-class AppContainer {
-    val retrofit = Retrofit.Builder()
-        .baseUrl("http://127.0.0.1:8080/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    private val groupApi = retrofit.create(GroupApi::class.java)
-    private val groupRemote = DefaultGroupRemoteDataSource(groupApi)
-
-    val groupsRepository: GroupsRepository = DefaultGroupsRepository(groupRemote)
+class AppContainer(
+) {
     val eventRepository = InMemoryEventRepository()
+
 }
