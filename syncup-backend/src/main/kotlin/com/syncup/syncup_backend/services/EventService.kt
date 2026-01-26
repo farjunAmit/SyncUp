@@ -10,13 +10,14 @@ import com.syncup.syncup_backend.entity.VoteEntity
 import com.syncup.syncup_backend.exceptions.EmptyPossibleSlotsException
 import com.syncup.syncup_backend.exceptions.EventNotFoundException
 import com.syncup.syncup_backend.exceptions.NotValidPossibleSlotException
+import com.syncup.syncup_backend.exceptions.PossibleSlotNotFoundException
 import com.syncup.syncup_backend.model.DecisionMode
+import com.syncup.syncup_backend.model.EventStatus
 import com.syncup.syncup_backend.model.Vote
 import com.syncup.syncup_backend.projection.SlotVoteSummary
 import com.syncup.syncup_backend.repositories.EventPossibleSlotRepository
 import com.syncup.syncup_backend.repositories.EventRepository
 import com.syncup.syncup_backend.repositories.GroupMemberRepository
-import com.syncup.syncup_backend.repositories.GroupRepository
 import com.syncup.syncup_backend.repositories.VoteRepository
 import com.syncup.syncup_backend.toDto
 import com.syncup.syncup_backend.toEventDto
@@ -109,7 +110,7 @@ class EventService(
     }
 
     @Transactional
-    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) {
+    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) : EventSummaryDto{
         val slots = eventPossibleSlotRepository.findByEvent_Id(submitVoteRequestDto.eventId)
         val slotMap = slots.associateBy { it.timeSlot }
         val event = eventRepository.findById(submitVoteRequestDto.eventId).orElseThrow{
@@ -133,7 +134,7 @@ class EventService(
         val groupSize = groupMemberRepository.countByGroup_Id(event.groupId)
         val countUser = voteRepository.countDistinctUserIdByEvent_Id(submitVoteRequestDto.eventId)
         if(countUser != groupSize)
-            return
+            return event.toEventDto()
         var bestSlot : SlotVoteSummary? = null
         if (event.decisionMode == DecisionMode.ALL_OR_NOTHING) {
             for(slotSummary in slotsAfterVoting ) {
@@ -165,7 +166,21 @@ class EventService(
                 }
             }
         }
-        //Update the event with the decided slot and return event
+        bestSlot?.let {
+            val decidedSlotEntity = eventPossibleSlotRepository.findById(it.getSlotId()).orElseThrow {
+                PossibleSlotNotFoundException(it.getSlotId())
+            }
+            if (decidedSlotEntity.event?.id != submitVoteRequestDto.eventId) {
+                throw NotValidPossibleSlotException(submitVoteRequestDto.eventId)
+            }
+            event.date = decidedSlotEntity.timeSlot
+            event.status = EventStatus.DECIDED
+            eventRepository.save(event)
+            return event.toEventDto()
+            //Send notification to group members about decided slot (TODO)
+        }
+        event.status = EventStatus.UNRESOLVED
+        eventRepository.save(event)
+        return event.toEventDto()
     }
-
 }

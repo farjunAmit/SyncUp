@@ -39,7 +39,7 @@ class EventController (
     }
 
     @PutMapping
-    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto){
+    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) : EventSummaryDto{
         eventService.submitVotes(submitVoteRequestDto)
     }
 }

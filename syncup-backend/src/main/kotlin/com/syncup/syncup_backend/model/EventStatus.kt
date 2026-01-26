@@ -7,6 +7,8 @@ enum class EventStatus {
     /** A final time slot has been chosen */
     DECIDED,
 
+    UNRESOLVED,
+
     /** Event was cancelled and is no longer active */
     CANCELLED
 }
