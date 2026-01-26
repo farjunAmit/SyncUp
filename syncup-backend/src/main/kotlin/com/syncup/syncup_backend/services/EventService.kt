@@ -68,11 +68,11 @@ class EventService(
             voteMap[vote] = cnt
         }
 
-        // 2) Map: slotId -> myVote
-        val myVoteBySlotId = mutableMapOf<Long, Vote>()
+        // 2) Map: slotId -> myVote (nullable)
+        val myVoteBySlotId = mutableMapOf<Long, Vote?>()
         myVotes.forEach { row ->
             val slotId = row[0] as Long
-            val vote = row[1] as Vote
+            val vote = row[1] as Vote?   //nullable
             myVoteBySlotId[slotId] = vote
         }
 
@@ -80,18 +80,18 @@ class EventService(
         val slotVotingList = mutableListOf<SlotVotingSummaryDto>()
         slots.forEach { slot ->
             val slotId = slot.id
-            val votesForSlot = (countsBySlotId[slotId] ?: mutableMapOf(
-                Vote.YES to 0, Vote.YES_BUT to 0, Vote.NO to 0
-            ))
-            val myVote = myVoteBySlotId[slotId]
+            val votesForSlot = countsBySlotId[slotId]
+                ?: mutableMapOf(Vote.YES to 0, Vote.YES_BUT to 0, Vote.NO to 0)
+
             slotVotingList.add(
                 SlotVotingSummaryDto(
                     timeSlot = requireNotNull(slot.timeSlot).toDto(),
                     votes = votesForSlot,
-                    myVote = myVote
+                    myVote = myVoteBySlotId[slotId] // Vote?
                 )
             )
         }
+
         return event.toEventDto(slotVotingList)
     }
 

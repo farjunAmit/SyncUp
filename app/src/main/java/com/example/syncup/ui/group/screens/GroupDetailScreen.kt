@@ -46,10 +46,10 @@ import com.example.syncup.ui.group.vm.GroupDetailViewModel
 @Composable
 fun GroupDetailScreen(
     viewModel: GroupDetailViewModel,
-    groupId: String?,
-    onGroupSelected: (String) -> Unit,
+    groupId: Long?,
+    onGroupSelected: (Long) -> Unit,
     onCreateEvent: () -> Unit,
-    onEventSelected: (String) -> Unit,
+    onEventSelected: (Long) -> Unit,
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value

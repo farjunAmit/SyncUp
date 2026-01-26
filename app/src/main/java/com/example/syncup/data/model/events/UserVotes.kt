@@ -9,7 +9,7 @@ package com.example.syncup.data.model.events
  * This class is owned and managed by an [Event] instance and
  * should not be modified directly from outside the event domain.
  */
-class UserVotes(val userId: String) {
+class UserVotes(val userId: Long) {
 
     /**
      * Internal mutable storage of the user's votes.

@@ -1,5 +1,5 @@
 package com.example.syncup.data.model.events
 
 data class VoteDraft(
-    val userId: String, val votes: Map<TimeSlot, Vote?> = emptyMap()
+    val userId: Long, val votes: Map<TimeSlot, Vote?> = emptyMap()
 )

@@ -25,6 +25,11 @@ class GroupService(
         return groupRepository.findUserGroups(id).map { it.toGroupDto() }
     }
 
+    fun getGroup(groupId: Long): GroupSummaryDto {
+        val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
+        return group.toGroupDto()
+    }
+
     @Transactional
     fun createGroup(createGroupRequest: CreateGroupRequestDto, userId: Long): GroupSummaryDto {
         val group = groupRepository.save(createGroupRequest.toGroupEntity())

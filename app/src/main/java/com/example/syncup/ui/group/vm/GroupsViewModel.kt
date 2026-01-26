@@ -63,7 +63,7 @@ class GroupsViewModel(
     /**
      * Renames an existing group, then refreshes the UI state.
      */
-    fun renameGroup(id: String, newName: String) {
+    fun renameGroup(id: Long, newName: String) {
         viewModelScope.launch {
             repo.rename(id, newName)
             loadGroups()
@@ -73,7 +73,7 @@ class GroupsViewModel(
     /**
      * Deletes a group by id, then refreshes the UI state.
      */
-    fun deleteGroup(id: String) {
+    fun deleteGroup(id: Long) {
         viewModelScope.launch {
             repo.delete(id)
             loadGroups()

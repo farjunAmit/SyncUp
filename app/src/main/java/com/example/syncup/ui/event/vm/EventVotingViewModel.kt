@@ -55,7 +55,7 @@ class EventVotingViewModel(private val eventRepo: EventRepository, private val g
      * @param eventId The ID of the event to load.
      * @param userId  The ID of the current user.
      */
-    fun loadEventAndVotes(eventId: String, userId: String) {
+    fun loadEventAndVotes(eventId: Long, userId: Long) {
         viewModelScope.launch {
             val event = eventRepo.getById(eventId)
 
@@ -135,7 +135,7 @@ class EventVotingViewModel(private val eventRepo: EventRepository, private val g
     private fun createVoteDraft(
         possibleSlots: Set<TimeSlot>,
         prevVote: Map<TimeSlot, Vote?>,
-        userId: String
+        userId: Long
     ): VoteDraft {
         val votes = mutableMapOf<TimeSlot, Vote?>()
 

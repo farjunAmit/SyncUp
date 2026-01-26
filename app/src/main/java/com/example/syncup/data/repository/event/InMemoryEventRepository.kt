@@ -44,7 +44,7 @@ class InMemoryEventRepository() : EventRepository {
      * In-memory implementation:
      * - Filters the local list by groupId.
      */
-    override suspend fun getAll(groupId: String): List<Event> {
+    override suspend fun getAll(groupId: Long): List<Event> {
         return events.filter { it.groupId == groupId }
     }
 
@@ -54,7 +54,7 @@ class InMemoryEventRepository() : EventRepository {
      * In-memory implementation:
      * - Finds the first matching event in the local list.
      */
-    override suspend fun getById(id: String): Event? {
+    override suspend fun getById(id: Long): Event? {
         return events.find { it.id == id }
     }
 
@@ -66,14 +66,14 @@ class InMemoryEventRepository() : EventRepository {
      * - Event is created in its initial state (typically VOTING, depends on Event constructor).
      */
     override suspend fun create(
-        groupId: String,
+        groupId: Long,
         title: String,
         possibleSlots: Set<TimeSlot>,
         description: String,
         decisionMode: DecisionMode,
-        eventTypeId: String?
+        eventTypeId: Long?
     ): Event {
-        val eventId = UUID.randomUUID().toString()
+        val eventId = UUID.randomUUID().toString().toLong()
         val newEvent = Event(eventId, groupId, title, possibleSlots, description, decisionMode, eventTypeId)
         events.add(newEvent)
         return newEvent
@@ -85,7 +85,7 @@ class InMemoryEventRepository() : EventRepository {
      * In-memory implementation:
      * - Removes matching event(s) from the local list.
      */
-    override suspend fun delete(eventId: String) {
+    override suspend fun delete(eventId: Long) {
         events.removeIf { it.id == eventId }
     }
 
@@ -104,7 +104,7 @@ class InMemoryEventRepository() : EventRepository {
      * - If no final date is found, the TODO indicates future handling (e.g. NO_MATCH + notification).
      * - This method is the "single point" where vote submission can trigger state transitions.
      */
-    override suspend fun submitVote(eventId: String, voteDraft: VoteDraft, memberCount: Int) {
+    override suspend fun submitVote(eventId: Long, voteDraft: VoteDraft, memberCount: Int) {
         val event = events.find { it.id == eventId } ?: return
 
         // Store/update the user's votes for this event
@@ -132,25 +132,25 @@ class InMemoryEventRepository() : EventRepository {
         }
     }
 
-    override suspend fun getEventTypesForGroup(groupId: String): Map<String, EventType> {
+    override suspend fun getEventTypesForGroup(groupId: Long): Map<Long, EventType> {
         val eventTypesForGroup = eventTypes.filter { it.groupId == groupId }
-        val result = mutableMapOf<String, EventType>()
+        val result = mutableMapOf<Long, EventType>()
         eventTypesForGroup.forEach { eventType ->
             result[eventType.id] = eventType
         }
         return result
     }
 
-    override suspend fun getEventTypesAsList(groupId: String): List<EventType> {
+    override suspend fun getEventTypesAsList(groupId: Long): List<EventType> {
         return eventTypes.filter { it.groupId == groupId }
     }
 
     override suspend fun addEventType(
-        groupId: String,
+        groupId: Long,
         type: String,
         color: Long
     ) : EventType {
-        val eventType = EventType(UUID.randomUUID().toString(), groupId, type, color)
+        val eventType = EventType(UUID.randomUUID().toString().toLong(), groupId, type, color)
         eventTypes.add(eventType)
         return eventType
     }

@@ -1,4 +1,4 @@
-package com.syncup.syncup_backend.dto
+package com.example.syncup.data.dto
 
 data class CreateGroupRequestDto(
     val name: String,

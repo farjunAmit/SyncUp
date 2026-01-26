@@ -10,7 +10,7 @@ import androidx.navigation.navArgument
 import com.example.syncup.Routes
 import com.example.syncup.data.AppContainer
 import com.example.syncup.ui.event.screens.CreateEventScreen
-import com.example.syncup.ui.event.screens.EventDetailScreen
+import com.example.syncup.ui.event.screens.EventVotingScreen
 import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
@@ -62,20 +62,19 @@ fun SyncUpApp(appContainer: AppContainer) {
 
         /**
          * Group details route.
-         * Expects groupId as a mandatory navigation argument.
          */
         composable(
             Routes.GROUP_DETAIL,
             arguments = listOf(
-                navArgument("groupId") { type = NavType.StringType }
+                navArgument("groupId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
 
-            // Extract groupId from navigation arguments
-            val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
             val groupsDetailViewModel = remember {
                 GroupDetailViewModel(appContainer.groupsRepository, appContainer.eventRepository)
             }
+
             GroupDetailScreen(
                 viewModel = groupsDetailViewModel,
                 groupId = groupId,
@@ -87,6 +86,7 @@ fun SyncUpApp(appContainer: AppContainer) {
                     }
                 },
                 onCreateEvent = {
+                    // CHANGED: Pass groupId as Long, not .toString()
                     navController.navigate(Routes.createEvent(groupId))
                 },
                 onEventSelected = { eventId ->
@@ -98,19 +98,19 @@ fun SyncUpApp(appContainer: AppContainer) {
 
         /**
          * Create event route.
-         * Expects groupId as a mandatory navigation argument.
          */
         composable(
             Routes.CREATE_EVENT,
             arguments = listOf(
-                navArgument("groupId") { type = NavType.StringType }
+                navArgument("groupId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
-            // Extract groupId from navigation arguments
-            val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
+
             val createEventViewModel = remember {
                 CreateEventViewModel(appContainer.eventRepository)
             }
+
             CreateEventScreen(
                 viewModel = createEventViewModel,
                 groupId = groupId,
@@ -120,24 +120,25 @@ fun SyncUpApp(appContainer: AppContainer) {
 
         /**
          * Event detail route.
-         * Expects eventId as a mandatory navigation argument.
          */
         composable(
             Routes.EVENT_DETAIL,
             arguments = listOf(
-                navArgument("eventId") { type = NavType.StringType }
+                // CHANGED: Set type to LongType
+                navArgument("eventId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
-            val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+            // CHANGED: Use getLong
+            val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
+
             val eventVotingViewModel = remember {
                 EventVotingViewModel(appContainer.eventRepository, appContainer.groupsRepository)
             }
-            EventDetailScreen(
+            EventVotingScreen(
                 viewModel = eventVotingViewModel,
                 eventId = eventId,
                 onBack = { navController.popBackStack() }
             )
         }
-
     }
 }

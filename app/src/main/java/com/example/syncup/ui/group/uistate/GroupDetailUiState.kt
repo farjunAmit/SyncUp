@@ -18,6 +18,6 @@ data class GroupDetailUiState(
     val groups: List<Group> = emptyList(),
     val events: List<Event> = emptyList(),
     val scheduledEvents: Map<LocalDate, List<Event>> = emptyMap(),
-    val eventTypes: Map<String, EventType> = emptyMap(),
+    val eventTypes: Map<Long, EventType> = emptyMap(),
     val group : Group? = null
 )

@@ -22,6 +22,11 @@ class GroupController(
         return groupService.getGroups(id)
     }
 
+    @GetMapping("/get/{groupId}")
+    fun getGroup(@PathVariable("groupId") groupId: Long): GroupSummaryDto {
+        return groupService.getGroup(groupId)
+    }
+
     @PostMapping("/create/{userId}")
     fun createGroup(
         @PathVariable("userId") userId: Long,

@@ -44,7 +44,7 @@ import com.example.syncup.ui.group.components.GroupGrid
 @Composable
 fun GroupsScreen(
     viewModel: GroupsViewModel,
-    onGroupClick: (String) -> Unit,
+    onGroupClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
 

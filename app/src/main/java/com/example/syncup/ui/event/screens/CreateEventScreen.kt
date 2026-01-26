@@ -60,7 +60,7 @@ import com.example.syncup.ui.event.components.EventTypesDropDown
 @Composable
 fun CreateEventScreen(
     viewModel: CreateEventViewModel,
-    groupId: String,
+    groupId: Long,
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value

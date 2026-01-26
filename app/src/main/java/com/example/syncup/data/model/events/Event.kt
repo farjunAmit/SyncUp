@@ -15,13 +15,13 @@ package com.example.syncup.data.model.events
  * rules (such as permissions or backend constraints) may be enforced elsewhere.
  */
 class Event(
-    val id: String,
-    val groupId: String,
+    val id: Long,
+    val groupId: Long,
     title: String,
     possibleSlots: Set<TimeSlot>,
     description: String,
     val decisionMode: DecisionMode = DecisionMode.ALL_OR_NOTHING,
-    val eventTypeId : String? = null
+    val eventTypeId: Long? = null
 ) {
     var title: String = title
         private set
@@ -50,13 +50,13 @@ class Event(
      * Internal mutable storage of votes per user.
      * Each user can have at most one [UserVotes] entry.
      */
-    private val _userVotes: MutableMap<String, UserVotes> =
+    private val _userVotes: MutableMap<Long, UserVotes> =
         mutableMapOf()
 
     /**
      * Read-only view of all user votes for this event.
      */
-    val userVotes: Map<String, UserVotes>
+    val userVotes: Map<Long, UserVotes>
         get() = _userVotes
 
     /**
@@ -72,7 +72,7 @@ class Event(
      * Validation such as ensuring the date exists in [possibleSlots] or
      * that the event is still in [EventStatus.VOTING] is currently not enforced.
      */
-    fun setVote(userId: String, date: TimeSlot, vote: Vote) {
+    fun setVote(userId: Long, date: TimeSlot, vote: Vote) {
         //Todo: Add validation to ensure date is in possibleDates and the EventStatus is VOTING
         val userVotes = _userVotes.getOrPut(userId) { UserVotes(userId) }
         userVotes.addVote(date, vote)
@@ -109,7 +109,7 @@ class Event(
      * - If the user has never submitted a vote for this event, an empty map is returned.
      * - The returned map should be treated as read-only from the caller side.
      */
-    fun getVoteForUser(userId: String): Map<TimeSlot, Vote?> {
+    fun getVoteForUser(userId: Long): Map<TimeSlot, Vote?> {
         val userVotes = _userVotes[userId] ?: return emptyMap()
         return userVotes.getAllVotes()
     }
