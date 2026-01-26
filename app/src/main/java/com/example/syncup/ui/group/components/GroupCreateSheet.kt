@@ -2,6 +2,7 @@ package com.example.syncup.ui.group.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,7 +42,7 @@ import androidx.compose.ui.unit.dp
  * All state in this component is local UI state.
  * Business logic is delegated to the caller via callbacks.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun GroupCreateSheet(
     onCreate: (String, List<String>) -> Unit,

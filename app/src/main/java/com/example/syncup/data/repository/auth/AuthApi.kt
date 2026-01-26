@@ -9,9 +9,9 @@ import retrofit2.http.POST
 
 interface AuthApi {
 
-    @POST("login")
+    @POST("/auth/login")
     suspend fun login(@Body body: LoginRequestDto): Response<AuthResponseDto>
 
-    @POST("register")
+    @POST("/auth/register")
     suspend fun register(@Body body: RegisterRequestDto): Response<AuthResponseDto>
 }

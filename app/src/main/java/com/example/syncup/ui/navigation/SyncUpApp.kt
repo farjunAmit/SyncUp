@@ -9,6 +9,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.syncup.Routes
 import com.example.syncup.data.AppContainer
+import com.example.syncup.data.repository.auth.AuthRepository
+import com.example.syncup.data.repository.group.GroupsRepository
+import com.example.syncup.data.session.SessionStore
 import com.example.syncup.ui.event.screens.CreateEventScreen
 import com.example.syncup.ui.event.screens.EventVotingScreen
 import com.example.syncup.ui.group.screens.GroupDetailScreen
@@ -17,6 +20,9 @@ import com.example.syncup.ui.group.screens.GroupsScreen
 import com.example.syncup.ui.event.vm.CreateEventViewModel
 import com.example.syncup.ui.event.vm.EventVotingViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
+import com.example.syncup.ui.login.GateScreen
+import com.example.syncup.ui.login.LoginScreen
+import com.example.syncup.ui.login.LoginViewModel
 
 /**
  * SyncUpApp
@@ -31,16 +37,45 @@ import com.example.syncup.ui.group.vm.GroupsViewModel
  * from the backStackEntry.
  */
 @Composable
-fun SyncUpApp(appContainer: AppContainer) {
+fun SyncUpApp(appContainer: AppContainer, sessionStore: SessionStore, authRepository: AuthRepository, groupsRepository: GroupsRepository) {
 
     // NavController is remembered so it survives recompositions
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Routes.GROUPS
+        startDestination = Routes.GATE
     ) {
+        composable(Routes.GATE) {
+            GateScreen(
+                sessionStore = sessionStore,
+                onGoHome = {
+                    navController.navigate(Routes.GROUPS) {
+                        popUpTo(Routes.GATE) { inclusive = true }
+                    }
+                },
+                onGoLogin = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.GATE) { inclusive = true }
+                    }
+                }
+            )
+        }
 
+        composable(Routes.LOGIN) {
+            val loginViewModel = remember {
+                LoginViewModel(authRepository)
+            }
+
+            LoginScreen(
+                loginViewModel = loginViewModel,
+                onLoggedIn = {
+                    navController.navigate(Routes.GROUPS) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                }
+            )
+        }
         /**
          * Groups screen route.
          * Creates the required ViewModel and passes navigation callback.
@@ -49,7 +84,7 @@ fun SyncUpApp(appContainer: AppContainer) {
 
             // Manual ViewModel creation (lightweight alternative to Hilt for MVP stage)
             val groupsViewModel = remember {
-                GroupsViewModel(appContainer.groupsRepository)
+                GroupsViewModel(groupsRepository)
             }
 
             GroupsScreen(
@@ -72,7 +107,7 @@ fun SyncUpApp(appContainer: AppContainer) {
             val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
 
             val groupsDetailViewModel = remember {
-                GroupDetailViewModel(appContainer.groupsRepository, appContainer.eventRepository)
+                GroupDetailViewModel(groupsRepository, appContainer.eventRepository)
             }
 
             GroupDetailScreen(
@@ -132,7 +167,7 @@ fun SyncUpApp(appContainer: AppContainer) {
             val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
 
             val eventVotingViewModel = remember {
-                EventVotingViewModel(appContainer.eventRepository, appContainer.groupsRepository)
+                EventVotingViewModel(appContainer.eventRepository, groupsRepository)
             }
             EventVotingScreen(
                 viewModel = eventVotingViewModel,
