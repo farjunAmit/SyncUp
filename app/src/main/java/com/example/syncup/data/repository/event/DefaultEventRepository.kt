@@ -23,13 +23,8 @@ class DefaultEventRepository @Inject constructor(
     }
 
     override suspend fun getById(id: Long): Event? {
-        try {
             val event = eventRemoteDataSource.getEvent(id)
             return event.toEvent()
-        } catch (e: HttpException) {
-            Log.e("EventRepository", "Error fetching event: ${e.response()?.errorBody()?.string()}")
-        }
-        return TODO("Provide the return value")
     }
 
     override suspend fun create(
