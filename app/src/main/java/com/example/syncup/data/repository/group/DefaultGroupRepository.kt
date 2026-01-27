@@ -1,10 +1,12 @@
 package com.example.syncup.data.repository.group
 
+import android.util.Log
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
 import com.example.syncup.data.dto.ChangeGroupNameRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
 import com.example.syncup.data.model.groups.Group
 import com.example.syncup.data.session.SessionStore
+import retrofit2.HttpException
 import javax.inject.Inject
 
 
@@ -30,7 +32,12 @@ class DefaultGroupsRepository @Inject constructor(
     }
 
     override suspend fun delete(id: Long) {
-        remoteDataSource.deleteGroup(id.toLong())
+        try {
+            remoteDataSource.deleteGroup(id)
+        }catch (e: HttpException) {
+            val body = e.response()?.errorBody()?.string()
+            Log.e("API", "HTTP ${e.code()} body=$body", e)
+        }
     }
 
     override suspend fun getGroup(id: Long): Group {

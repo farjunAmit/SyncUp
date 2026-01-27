@@ -54,9 +54,11 @@ class GroupService(
         group.name = name.name
         return groupRepository.save(group).toGroupDto()
     }
-
+    @Transactional
     fun deleteGroup(groupId : Long){
         val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
+        val groupMembers = groupMemberRepository.findByGroup_Id(groupId)
+        groupMemberRepository.deleteAll(groupMembers)
         groupRepository.delete(group)
     }
 
