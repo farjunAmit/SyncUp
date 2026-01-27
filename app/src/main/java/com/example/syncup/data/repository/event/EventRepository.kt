@@ -4,7 +4,7 @@ import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
-import com.example.syncup.data.model.events.VoteDraft
+import com.example.syncup.data.model.events.Vote
 
 /**
  * Repository interface for managing [Event] data.
@@ -23,7 +23,7 @@ interface EventRepository {
      *
      * @param groupId The ID of the group whose events are requested.
      */
-    suspend fun getAll(groupId: String): List<Event>
+    suspend fun getAll(groupId: Long): List<Event>
 
     /**
      * Retrieves a single event by its unique identifier.
@@ -31,7 +31,7 @@ interface EventRepository {
      * @param id The ID of the event.
      * @return The matching [Event], or null if no such event exists.
      */
-    suspend fun getById(id: String): Event?
+    suspend fun getById(id: Long): Event?
 
     /**
      * Creates a new event for the specified group.
@@ -45,12 +45,12 @@ interface EventRepository {
      * @return The newly created [Event].
      */
     suspend fun create(
-        groupId: String,
+        groupId: Long,
         title: String,
         possibleSlots: Set<TimeSlot>,
         description: String,
         decisionMode: DecisionMode,
-        eventTypeId: String?
+        eventTypeId: Long?
     ): Event
 
     /**
@@ -58,7 +58,7 @@ interface EventRepository {
      *
      * @param eventId The ID of the event to delete.
      */
-    suspend fun delete(eventId: String)
+    suspend fun delete(eventId: Long)
 
     /**
      * Submits or updates a user's vote for the given event.
@@ -75,12 +75,10 @@ interface EventRepository {
      * @param voteDraft The user's vote submission data.
      */
     suspend fun submitVote(
-        eventId: String,
-        voteDraft: VoteDraft,
-        memberCount: Int
-    )
+        eventId: Long,
+        voteDraft: Map<TimeSlot, Vote?>
+    ) : Event
 
-    suspend fun getEventTypesForGroup(groupId: String): Map<String, EventType>
-    suspend fun getEventTypesAsList(groupId: String): List<EventType>
-    suspend fun addEventType(groupId: String, type: String, color: Long) : EventType
+    suspend fun getEventTypesForGroup(groupId: Long): Map<Long, EventType>
+    suspend fun addEventType(groupId: Long, type: String, color: Long) : EventType
 }

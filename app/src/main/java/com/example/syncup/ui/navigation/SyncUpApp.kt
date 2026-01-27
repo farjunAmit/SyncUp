@@ -8,15 +8,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.syncup.Routes
-import com.example.syncup.data.AppContainer
+import com.example.syncup.data.repository.auth.AuthRepository
+import com.example.syncup.data.repository.event.EventRepository
+import com.example.syncup.data.repository.group.GroupsRepository
+import com.example.syncup.data.session.SessionStore
 import com.example.syncup.ui.event.screens.CreateEventScreen
-import com.example.syncup.ui.event.screens.EventDetailScreen
+import com.example.syncup.ui.event.screens.EventVotingScreen
 import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
 import com.example.syncup.ui.event.vm.CreateEventViewModel
 import com.example.syncup.ui.event.vm.EventVotingViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
+import com.example.syncup.ui.login.GateScreen
+import com.example.syncup.ui.login.LoginScreen
+import com.example.syncup.ui.login.LoginViewModel
 
 /**
  * SyncUpApp
@@ -25,22 +31,55 @@ import com.example.syncup.ui.group.vm.GroupsViewModel
  * Responsible for:
  * - Creating and holding the NavController
  * - Defining the navigation graph (NavHost)
- * - Wiring screen dependencies using AppContainer (manual DI)
  *
  * Navigation arguments (e.g., groupId) are passed via routes and extracted
  * from the backStackEntry.
  */
 @Composable
-fun SyncUpApp(appContainer: AppContainer) {
+fun SyncUpApp(
+    sessionStore: SessionStore,
+    authRepository: AuthRepository,
+    groupsRepository: GroupsRepository,
+    eventRepository: EventRepository
+) {
 
     // NavController is remembered so it survives recompositions
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Routes.GROUPS
+        startDestination = Routes.GATE
     ) {
+        composable(Routes.GATE) {
+            GateScreen(
+                sessionStore = sessionStore,
+                onGoHome = {
+                    navController.navigate(Routes.GROUPS) {
+                        popUpTo(Routes.GATE) { inclusive = true }
+                    }
+                },
+                onGoLogin = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.GATE) { inclusive = true }
+                    }
+                }
+            )
+        }
 
+        composable(Routes.LOGIN) {
+            val loginViewModel = remember {
+                LoginViewModel(authRepository)
+            }
+
+            LoginScreen(
+                loginViewModel = loginViewModel,
+                onLoggedIn = {
+                    navController.navigate(Routes.GROUPS) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                }
+            )
+        }
         /**
          * Groups screen route.
          * Creates the required ViewModel and passes navigation callback.
@@ -49,7 +88,7 @@ fun SyncUpApp(appContainer: AppContainer) {
 
             // Manual ViewModel creation (lightweight alternative to Hilt for MVP stage)
             val groupsViewModel = remember {
-                GroupsViewModel(appContainer.groupsRepository)
+                GroupsViewModel(groupsRepository)
             }
 
             GroupsScreen(
@@ -62,20 +101,19 @@ fun SyncUpApp(appContainer: AppContainer) {
 
         /**
          * Group details route.
-         * Expects groupId as a mandatory navigation argument.
          */
         composable(
             Routes.GROUP_DETAIL,
             arguments = listOf(
-                navArgument("groupId") { type = NavType.StringType }
+                navArgument("groupId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
 
-            // Extract groupId from navigation arguments
-            val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
             val groupsDetailViewModel = remember {
-                GroupDetailViewModel(appContainer.groupsRepository, appContainer.eventRepository)
+                GroupDetailViewModel(groupsRepository, eventRepository)
             }
+
             GroupDetailScreen(
                 viewModel = groupsDetailViewModel,
                 groupId = groupId,
@@ -87,6 +125,7 @@ fun SyncUpApp(appContainer: AppContainer) {
                     }
                 },
                 onCreateEvent = {
+                    // CHANGED: Pass groupId as Long, not .toString()
                     navController.navigate(Routes.createEvent(groupId))
                 },
                 onEventSelected = { eventId ->
@@ -98,19 +137,19 @@ fun SyncUpApp(appContainer: AppContainer) {
 
         /**
          * Create event route.
-         * Expects groupId as a mandatory navigation argument.
          */
         composable(
             Routes.CREATE_EVENT,
             arguments = listOf(
-                navArgument("groupId") { type = NavType.StringType }
+                navArgument("groupId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
-            // Extract groupId from navigation arguments
-            val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
+
             val createEventViewModel = remember {
-                CreateEventViewModel(appContainer.eventRepository)
+                CreateEventViewModel(eventRepository)
             }
+
             CreateEventScreen(
                 viewModel = createEventViewModel,
                 groupId = groupId,
@@ -120,24 +159,25 @@ fun SyncUpApp(appContainer: AppContainer) {
 
         /**
          * Event detail route.
-         * Expects eventId as a mandatory navigation argument.
          */
         composable(
             Routes.EVENT_DETAIL,
             arguments = listOf(
-                navArgument("eventId") { type = NavType.StringType }
+                // CHANGED: Set type to LongType
+                navArgument("eventId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
-            val eventId = backStackEntry.arguments?.getString("eventId") ?: return@composable
+            // CHANGED: Use getLong
+            val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
+
             val eventVotingViewModel = remember {
-                EventVotingViewModel(appContainer.eventRepository, appContainer.groupsRepository)
+                EventVotingViewModel(eventRepository)
             }
-            EventDetailScreen(
+            EventVotingScreen(
                 viewModel = eventVotingViewModel,
                 eventId = eventId,
                 onBack = { navController.popBackStack() }
             )
         }
-
     }
 }

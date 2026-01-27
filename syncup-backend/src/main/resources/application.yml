@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: syncup-backend
+
+  datasource:
+    url: jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?prepareThreshold=0
+    username: "postgres.cteobhqgjxocepuksnxw"
+    password: ${SUPABASE_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+jwt:
+  secret: "PUT_A_LONG_SECRET_HERE_AT_LEAST_32_CHARS"
+  expirationMinutes: 10080

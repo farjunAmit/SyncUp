@@ -54,7 +54,7 @@ class GroupDetailViewModel(
     /**
      * Loads the details of a specific group from the repository and updates the UI state.
      */
-    fun loadGroup(id: String) {
+    fun loadGroup(id: Long) {
         viewModelScope.launch {
             // If the UI state is empty, load groups before loading the specific group
             if (_uiState.value.groups.isEmpty()) {
@@ -69,7 +69,7 @@ class GroupDetailViewModel(
     /**
      * Loads the events of a specific group from the repository and updates the UI state.
      */
-    fun loadEvents(groupId: String) {
+    fun loadEvents(groupId: Long) {
         viewModelScope.launch {
             val events = eventRepo.getAll(groupId)
             val eventTypes = eventRepo.getEventTypesForGroup(groupId)
@@ -83,7 +83,7 @@ class GroupDetailViewModel(
     /**
      * Deletes a group by id, then refreshes the UI state.
      */
-    fun deleteEvent(eventId: String) {
+    fun deleteEvent(eventId: Long) {
         viewModelScope.launch {
             val group = _uiState.value.group
             if (group != null) {

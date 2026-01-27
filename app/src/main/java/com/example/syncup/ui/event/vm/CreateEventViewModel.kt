@@ -24,9 +24,9 @@ class CreateEventViewModel(
     private val _uiState = MutableStateFlow(CreateEventUiState())
     val uiState: StateFlow<CreateEventUiState> = _uiState.asStateFlow()
 
-    fun loadEventTypes(groupId: String) {
+    fun loadEventTypes(groupId: Long) {
         viewModelScope.launch {
-            val eventTypes = eventRepo.getEventTypesAsList(groupId)
+            val eventTypes = eventRepo.getEventTypesForGroup(groupId).map { it.value }
 
             _uiState.update { current ->
                 current.copy(
@@ -37,10 +37,10 @@ class CreateEventViewModel(
         }
     }
 
-    fun addEventType(groupId: String, type: String, color: Long) {
+    fun addEventType(groupId: Long, type: String, color: Long) {
         viewModelScope.launch {
             val newType = eventRepo.addEventType(groupId, type, color)
-            val eventTypes = eventRepo.getEventTypesAsList(groupId)
+            val eventTypes = eventRepo.getEventTypesForGroup(groupId).map { it.value }
             _uiState.update { current ->
                 current.copy(
                     eventTypes = eventTypes,
@@ -50,7 +50,7 @@ class CreateEventViewModel(
         }
     }
 
-    fun setEventType(eventTypeId: String) {
+    fun setEventType(eventTypeId: Long) {
         _uiState.update { current ->
             val eventType = current.eventTypes.find { it.id == eventTypeId }
             current.copy(
@@ -63,12 +63,12 @@ class CreateEventViewModel(
      * Creates a new event and optionally invites emails.
      */
     fun createEvent(
-        groupId: String,
+        groupId: Long,
         title: String,
         possibleSlots: Set<TimeSlot>,
         description: String,
         decisionMode: DecisionMode,
-        eventTypeId: String?
+        eventTypeId: Long?
     ) {
         viewModelScope.launch {
             eventRepo.create(groupId, title, possibleSlots, description, decisionMode, eventTypeId)

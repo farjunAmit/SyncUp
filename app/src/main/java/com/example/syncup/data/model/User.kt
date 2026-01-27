@@ -8,7 +8,7 @@ package com.example.syncup.data.model
  * - Submit votes for time slots
  */
 data class User(
-    val id: String,
+    val id: Long,
     val displayName: String,
     val email: String
 )

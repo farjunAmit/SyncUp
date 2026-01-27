@@ -11,7 +11,7 @@ import com.example.syncup.data.model.User
  * The name can only be updated through the rename() function
  * to keep changes controlled and explicit.
  */
-class Group(val id: String, name:String, val members: MutableList<User> = mutableListOf()) {
+class Group(val id: Long, name:String, val members: MutableList<User> = mutableListOf()) {
     var name: String = name
         private set
     /**

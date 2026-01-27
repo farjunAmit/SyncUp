@@ -44,10 +44,9 @@ import com.example.syncup.ui.group.components.GroupGrid
 @Composable
 fun GroupsScreen(
     viewModel: GroupsViewModel,
-    onGroupClick: (String) -> Unit,
+    onGroupClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     // Collect UI state exposed by the ViewModel (single source of truth for groups list)
     val state = viewModel.uiState.collectAsState().value
 

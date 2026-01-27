@@ -30,7 +30,7 @@ import java.time.YearMonth
 @Composable
 fun GroupCalendar(
     events: Map<LocalDate, List<Event>>,
-    eventTypes: Map<String, EventType>
+    eventTypes: Map<Long, EventType>
 ) {
     val date: LocalDate = LocalDate.now()
     var month by remember { mutableStateOf(YearMonth.now()) }

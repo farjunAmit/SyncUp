@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableStateSetOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,18 +60,22 @@ import com.example.syncup.ui.event.components.EventTypesDropDown
 @Composable
 fun CreateEventScreen(
     viewModel: CreateEventViewModel,
-    groupId: String,
+    groupId: Long,
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value
     val eventTypes = state.eventTypes
     val currentEventType = state.selectedEventType
+
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    val possibleSlots = remember { mutableStateSetOf<TimeSlot>() }
+
+    val possibleSlots = remember { mutableStateListOf<TimeSlot>() }
+
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var decisionMode by remember { mutableStateOf(DecisionMode.ALL_OR_NOTHING) }
     var showCreateNewTypeDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(groupId) {
         viewModel.loadEventTypes(groupId)
     }
@@ -89,7 +93,7 @@ fun CreateEventScreen(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
@@ -99,7 +103,7 @@ fun CreateEventScreen(
                 label = { Text("Event Title") },
                 singleLine = true
             )
-            Spacer(modifier = Modifier.Companion.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = description,
                 onValueChange = { description = it },
@@ -107,7 +111,7 @@ fun CreateEventScreen(
                 singleLine = false,
                 minLines = 3
             )
-            Spacer(modifier = Modifier.Companion.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Row (
                 verticalAlignment = Alignment.CenterVertically
             ){
@@ -126,7 +130,8 @@ fun CreateEventScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.Companion.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
             CreateEventCalendar(
                 onCellClick = { date ->
                     selectedDate = date
@@ -135,7 +140,8 @@ fun CreateEventScreen(
                     possibleSlots.any { it.date == date }
                 }
             )
-            Spacer(modifier = Modifier.Companion.height(8.dp))
+
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
@@ -146,7 +152,7 @@ fun CreateEventScreen(
                 )
                 Text("All or nothing")
             }
-            Spacer(modifier = Modifier.Companion.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
@@ -159,41 +165,44 @@ fun CreateEventScreen(
             }
             Button(
                 onClick = {
-                    var possibleSlotsSort = possibleSlots.toList()
-                    possibleSlotsSort = possibleSlotsSort.sortedBy { it.date }
+                    val sortedSlots = possibleSlots.sortedBy { it.date }.toMutableSet()
+
                     viewModel.createEvent(
                         groupId,
                         title,
-                        possibleSlotsSort.toMutableSet(),
+                        sortedSlots,
                         description,
                         decisionMode,
                         currentEventType?.id
                     )
                     onBack()
                 },
-                enabled = title.isNotBlank() && possibleSlots.isNotEmpty() && currentEventType!=null
+                enabled = title.isNotBlank() && possibleSlots.isNotEmpty()
             ) { Text("Create Event") }
         }
     }
-    selectedDate?.let { it ->
+
+    selectedDate?.let { date ->
         TimeSlotChooseSheet(
-            date = it,
+            date = date,
             initialMorning = possibleSlots.any { timeSlot ->
-                timeSlot.date == it &&
+                timeSlot.date == date &&
                         (timeSlot.partOfDay == PartOfDay.MORNING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
             },
             initialEvening = possibleSlots.any { timeSlot ->
-                timeSlot.date == it &&
+                timeSlot.date == date &&
                         (timeSlot.partOfDay == PartOfDay.EVENING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
             },
             onDismiss = { selectedDate = null },
-            onTimeSlotSelected = { morning, evening, date ->
+            onTimeSlotSelected = { morning, evening, _ ->
                 val partOfDay: PartOfDay = when {
                     morning && evening -> PartOfDay.ALL_DAY
                     morning -> PartOfDay.MORNING
                     else -> PartOfDay.EVENING
                 }
+
                 possibleSlots.removeIf { it.date == date }
+
                 if (morning || evening) {
                     possibleSlots.add(TimeSlot(date, partOfDay))
                 }
@@ -201,6 +210,7 @@ fun CreateEventScreen(
             }
         )
     }
+
     if (showCreateNewTypeDialog) {
         CreateEventTypeDialog(
             onDismissRequest = { showCreateNewTypeDialog = false },

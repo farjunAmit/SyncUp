@@ -21,9 +21,9 @@ import com.example.syncup.data.model.groups.Group
 @Composable
 fun GroupGrid(
     groups: List<Group>,
-    onGroupClick: (String) -> Unit,
-    onDelete: (String) -> Unit,
-    onEdit: (String, String) -> Unit,
+    onGroupClick: (Long) -> Unit,
+    onDelete: (Long) -> Unit,
+    onEdit: (Long, String) -> Unit,
     modifier: Modifier = Modifier.Companion
 ) {
 

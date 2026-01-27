@@ -25,7 +25,7 @@ fun GroupCalendarDey(
     modifier: Modifier = Modifier,
     day: LocalDate,
     events: List<Event>?,
-    eventTypes : Map<String, EventType>,
+    eventTypes : Map<Long, EventType>,
     isPass: Boolean = false,
     onDayClick: () -> Unit,
 ) {

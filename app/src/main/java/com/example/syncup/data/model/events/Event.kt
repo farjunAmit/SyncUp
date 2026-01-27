@@ -15,13 +15,13 @@ package com.example.syncup.data.model.events
  * rules (such as permissions or backend constraints) may be enforced elsewhere.
  */
 class Event(
-    val id: String,
-    val groupId: String,
+    val id: Long,
+    val groupId: Long,
     title: String,
     possibleSlots: Set<TimeSlot>,
     description: String,
     val decisionMode: DecisionMode = DecisionMode.ALL_OR_NOTHING,
-    val eventTypeId : String? = null
+    val eventTypeId: Long? = null,
 ) {
     var title: String = title
         private set
@@ -45,87 +45,9 @@ class Event(
     var finalDate: TimeSlot? = null
         private set
 
+    var myVotes: Map<TimeSlot, Vote?> = emptyMap()
 
-    /**
-     * Internal mutable storage of votes per user.
-     * Each user can have at most one [UserVotes] entry.
-     */
-    private val _userVotes: MutableMap<String, UserVotes> =
-        mutableMapOf()
-
-    /**
-     * Read-only view of all user votes for this event.
-     */
-    val userVotes: Map<String, UserVotes>
-        get() = _userVotes
-
-    /**
-     * Adds or updates a single vote for a specific user and time slot.
-     *
-     * If the user has not voted before, a new [UserVotes] entry is created.
-     *
-     * @param userId The ID of the user casting the vote.
-     * @param date The [TimeSlot] being voted on.
-     * @param vote The vote value (e.g. available, maybe, unavailable).
-     *
-     * Note:
-     * Validation such as ensuring the date exists in [possibleSlots] or
-     * that the event is still in [EventStatus.VOTING] is currently not enforced.
-     */
-    fun setVote(userId: String, date: TimeSlot, vote: Vote) {
-        //Todo: Add validation to ensure date is in possibleDates and the EventStatus is VOTING
-        val userVotes = _userVotes.getOrPut(userId) { UserVotes(userId) }
-        userVotes.addVote(date, vote)
-    }
-
-    /**
-     * Replaces all existing votes of a user with a new set of votes.
-     *
-     * This is useful when submitting a full voting form rather than
-     * individual vote updates.
-     *
-     * @param userId The ID of the user whose votes are being replaced.
-     * @param votes A map of [TimeSlot] to [Vote].
-     *
-     * Note:
-     * Existing votes for the user are cleared before applying the new ones.
-     */
-    fun setNewVotesForUser(voteDraft: VoteDraft) {
-        //Todo: Add validation to ensure date is in possibleDates and the EventStatus is VOTING
-        val userVotes = _userVotes.getOrPut(voteDraft.userId) { UserVotes(voteDraft.userId) }
-        userVotes.clear()
-        voteDraft.votes.forEach { (date, vote) ->
-            userVotes.addVote(date, vote)
-        }
-    }
-
-    /**
-     * Returns the current vote map for a specific user within this event.
-     *
-     * @param userId The identifier of the user (currently can be email/userId).
-     * @return A map of [TimeSlot] -> [Vote?] representing the user's selections per slot.
-     *
-     * Notes:
-     * - If the user has never submitted a vote for this event, an empty map is returned.
-     * - The returned map should be treated as read-only from the caller side.
-     */
-    fun getVoteForUser(userId: String): Map<TimeSlot, Vote?> {
-        val userVotes = _userVotes[userId] ?: return emptyMap()
-        return userVotes.getAllVotes()
-    }
-
-    /**
-     * Updates the lifecycle status of the event.
-     *
-     * Typical transitions:
-     * - [EventStatus.VOTING] -> [EventStatus.DECIDED] when a final slot is chosen.
-     * - [EventStatus.VOTING] -> [EventStatus.CANCELLED] if the event is cancelled.
-     *
-     */
-    fun updateStatus(newStatus: EventStatus) {
-        //Todo: Add validation to ensure status is valid
-        eventStatus = newStatus
-    }
+    var slotCounts: Map<TimeSlot, Map<Vote, Int>> = emptyMap()
 
     /**
      * Sets the final chosen time slot for this event.

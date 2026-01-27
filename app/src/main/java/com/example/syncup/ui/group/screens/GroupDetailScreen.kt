@@ -3,6 +3,7 @@ package com.example.syncup.ui.group.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.syncup.ui.group.components.GroupCalendar
@@ -46,19 +48,16 @@ import com.example.syncup.ui.group.vm.GroupDetailViewModel
 @Composable
 fun GroupDetailScreen(
     viewModel: GroupDetailViewModel,
-    groupId: String?,
-    onGroupSelected: (String) -> Unit,
+    groupId: Long?,
+    onGroupSelected: (Long) -> Unit,
     onCreateEvent: () -> Unit,
-    onEventSelected: (String) -> Unit,
+    onEventSelected: (Long) -> Unit,
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value
     val index = state.groups.indexOfFirst { it.id == groupId }
     //If groupId is not found, default to index 0
-    val selectedTabIndex = when (index != -1) {
-        true -> index
-        false -> 0
-    }
+    val selectedTabIndex = index
     // Runs loadGroup only when groupId changes, not on every recomposition
     LaunchedEffect(groupId) {
         if (groupId != null) {
@@ -85,30 +84,42 @@ fun GroupDetailScreen(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-            ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
-                state.groups.forEachIndexed { index, group ->
-                    Tab(
-                        selected = index == selectedTabIndex,
-                        text = { Text(group.name) },
-                        onClick = { onGroupSelected(group.id) }
-                    )
+            if (index != -1) {
+                ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
+                    state.groups.forEachIndexed { index, group ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            text = { Text(group.name) },
+                            onClick = { onGroupSelected(group.id) }
+                        )
+                    }
+                }
+                Surface(modifier = Modifier.padding(16.dp)) {
+                    GroupCalendar(events = state.scheduledEvents, eventTypes = state.eventTypes)
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(state.events) { event ->
+                        Text(
+                            event.title,
+                            modifier = Modifier.clickable {
+                                onEventSelected(event.id)
+                            }
+                        )
+                    }
                 }
             }
-            Surface(modifier = Modifier.padding(16.dp)) {
-                GroupCalendar(events = state.scheduledEvents, eventTypes = state.eventTypes)
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(state.events) { event ->
-                    Text(event.title,
-                        modifier = Modifier.clickable {
-                            onEventSelected(event.id)
-                        }
-                    )
+            else{
+                Column (
+                    modifier = Modifier.padding(16.dp).fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Text("Loading...")
                 }
             }
         }

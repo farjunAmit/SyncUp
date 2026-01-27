@@ -19,6 +19,7 @@ interface GroupsRepository {
      */
     suspend fun getAll(): List<Group>
 
+
     /**
      * Creates a new group with the given name.
      *
@@ -28,7 +29,7 @@ interface GroupsRepository {
      */
     suspend fun create(
         name: String,
-        invitedEmails: List<String> = emptyList()
+        invitedEmails: List<String> = emptyList(),
     ): Group
 
     /**
@@ -37,21 +38,21 @@ interface GroupsRepository {
      * @param id The unique identifier of the group.
      * @param newName The new name to assign to the group.
      */
-    suspend fun rename(id: String, newName: String)
+    suspend fun rename(id: Long, newName: String) : Group
 
     /**
      * Deletes a group by its identifier.
      *
      * @param id The unique identifier of the group to delete.
      */
-    suspend fun delete(id: String)
+    suspend fun delete(id: Long)
 
     /**
      * Retrieves a specific group by its identifier.
      *
-     * @param id The unique identifier of the group.
+     * @param id The unique identif ier of the group.
      */
-    suspend fun getGroup(id: String) : Group?
+    suspend fun getGroup(id: Long) : Group
 
     /**
      * Adds a member to a group.
@@ -59,12 +60,12 @@ interface GroupsRepository {
      * @param groupId The unique identifier of the group.
      * @param userId The unique identifier of the user to add.
      */
-    suspend fun addMember(groupId: String, userId: String)
+    suspend fun addMember(groupId: Long, userId: Long)
 
     /**
      * get number of members in a group
      *
      * @param groupId The unique identifier of the group.
      */
-    suspend fun getMemberCount(groupId: String) : Int
+    suspend fun getMemberCount(groupId: Long) : Int
 }
