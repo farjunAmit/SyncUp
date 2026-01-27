@@ -126,7 +126,7 @@ class EventService(
             EventNotFoundException(submitVoteRequestDto.eventId)
         }
         voteRepository.deleteByEvent_IdAndUserId(submitVoteRequestDto.eventId, currentUserId)
-
+        voteRepository.flush()
         val votes = submitVoteRequestDto.votes.map { voteDto ->
             val slotEntity = slotMap[voteDto.timeSlotDto.toModel()]
                 ?: throw NotValidPossibleSlotException(submitVoteRequestDto.eventId)

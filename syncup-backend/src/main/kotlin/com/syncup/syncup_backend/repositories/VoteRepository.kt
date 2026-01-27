@@ -9,11 +9,11 @@ import org.springframework.data.repository.query.Param
 
 interface VoteRepository : JpaRepository<VoteEntity, Long> {
     //Counts the number of a specific vote for a slot
-    @Query(
-        """
+    @Query("""
     select v.slot.id, v.vote, count(v)
     from VoteEntity v
     where v.event.id = :eventId
+    and v.vote is not null
     group by v.slot.id, v.vote
     """)
     fun countVotesBySlot(eventId: Long): List<Array<Any>>

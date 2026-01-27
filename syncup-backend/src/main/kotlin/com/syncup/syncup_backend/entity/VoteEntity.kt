@@ -22,7 +22,7 @@ class VoteEntity(
     var slot: EventPossibleSlotEntity? = null,
 
     @Column(name = "user_id", nullable = false)
-    var userId: Long? = null,
+    var userId: Long,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)

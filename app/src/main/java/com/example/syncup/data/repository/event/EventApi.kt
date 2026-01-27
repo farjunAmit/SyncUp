@@ -17,7 +17,7 @@ interface EventApi {
     @GET("events/{groupId}")
     suspend fun getEvents(@Path("groupId") groupId: Long): List<EventSummaryDto>
 
-    @GET("events/get/{eventId}")
+    @GET("events/voting/{eventId}")
     suspend fun getEvent(@Path("eventId") eventId: Long): EventForVotingDto
 
     @POST("events/{groupId}")

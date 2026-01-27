@@ -6,7 +6,7 @@ import jakarta.persistence.Enumerated
 import java.time.LocalDate
 
 @Embeddable
-class TimeSlot(
+data class TimeSlot(
     var date: LocalDate = LocalDate.now(),
     @Enumerated(EnumType.STRING)
     var partOfDay: PartOfDay = PartOfDay.MORNING
