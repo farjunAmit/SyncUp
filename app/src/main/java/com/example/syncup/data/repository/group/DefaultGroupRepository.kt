@@ -5,14 +5,12 @@ import com.example.syncup.data.dto.AddGroupMemberRequestDto
 import com.example.syncup.data.dto.ChangeGroupNameRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
 import com.example.syncup.data.model.groups.Group
-import com.example.syncup.data.session.SessionStore
 import retrofit2.HttpException
 import javax.inject.Inject
 
 
 class DefaultGroupsRepository @Inject constructor(
     private val remoteDataSource: GroupRemoteDataSource,
-    private val sessionStore: SessionStore
 ) : GroupsRepository {
 
     override suspend fun getAll(): List<Group> {

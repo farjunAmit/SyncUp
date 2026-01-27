@@ -23,12 +23,13 @@ class EventController (
 ){
     private fun currentUserId(): Long =
         SecurityContextHolder.getContext().authentication!!.name.toLong()
+
     @GetMapping("/{groupId}")
     fun getEvents(@PathVariable("groupId") id: Long): List<EventSummaryDto> {
         return eventService.getEvents(id)
     }
 
-    @GetMapping("/event/voting/{eventId}")
+    @GetMapping("/voting/{eventId}")
     fun getEventVoting(@PathVariable("eventId") eventId: Long): EventForVotingDto {
         return eventService.getEvent(eventId, currentUserId())
     }

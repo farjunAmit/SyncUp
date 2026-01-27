@@ -26,7 +26,7 @@ class CreateEventViewModel(
 
     fun loadEventTypes(groupId: Long) {
         viewModelScope.launch {
-            val eventTypes = eventRepo.getEventTypesAsList(groupId)
+            val eventTypes = eventRepo.getEventTypesForGroup(groupId).map { it.value }
 
             _uiState.update { current ->
                 current.copy(
@@ -40,7 +40,7 @@ class CreateEventViewModel(
     fun addEventType(groupId: Long, type: String, color: Long) {
         viewModelScope.launch {
             val newType = eventRepo.addEventType(groupId, type, color)
-            val eventTypes = eventRepo.getEventTypesAsList(groupId)
+            val eventTypes = eventRepo.getEventTypesForGroup(groupId).map { it.value }
             _uiState.update { current ->
                 current.copy(
                     eventTypes = eventTypes,

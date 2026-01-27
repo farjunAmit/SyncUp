@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.syncup.data.model.User
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
 import com.example.syncup.ui.event.components.VoteForSlotSheet
@@ -78,15 +77,10 @@ fun EventVotingScreen(
     var chosenTimeSlot by remember { mutableStateOf<TimeSlot?>(null) }
 
     /**
-     * Temporary hardcoded current user for the MVP stage.
-     * Later this should come from a shared "current user" source (auth/session).
-     */
-    val user = User(1L, "amit", "amit@gmail.com")
-    /**
      * If a vote draft exists in state, we use it as the source of truth for the grid.
      */
-    if (voteDraft != null) {
-        userCurrentVote = voteDraft.votes
+    if (voteDraft.isNotEmpty()) {
+        userCurrentVote = voteDraft
     }
 
     /**
@@ -94,7 +88,7 @@ fun EventVotingScreen(
      * This ensures the UI has the latest data for this event.
      */
     LaunchedEffect(eventId) {
-        viewModel.loadEventAndVotes(eventId, user.id)
+        viewModel.loadEventAndVotes(eventId)
     }
 
     /**

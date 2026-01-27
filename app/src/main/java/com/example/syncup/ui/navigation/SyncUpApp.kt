@@ -8,8 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.syncup.Routes
-import com.example.syncup.data.AppContainer
 import com.example.syncup.data.repository.auth.AuthRepository
+import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.data.session.SessionStore
 import com.example.syncup.ui.event.screens.CreateEventScreen
@@ -31,13 +31,17 @@ import com.example.syncup.ui.login.LoginViewModel
  * Responsible for:
  * - Creating and holding the NavController
  * - Defining the navigation graph (NavHost)
- * - Wiring screen dependencies using AppContainer (manual DI)
  *
  * Navigation arguments (e.g., groupId) are passed via routes and extracted
  * from the backStackEntry.
  */
 @Composable
-fun SyncUpApp(appContainer: AppContainer, sessionStore: SessionStore, authRepository: AuthRepository, groupsRepository: GroupsRepository) {
+fun SyncUpApp(
+    sessionStore: SessionStore,
+    authRepository: AuthRepository,
+    groupsRepository: GroupsRepository,
+    eventRepository: EventRepository
+) {
 
     // NavController is remembered so it survives recompositions
     val navController = rememberNavController()
@@ -107,7 +111,7 @@ fun SyncUpApp(appContainer: AppContainer, sessionStore: SessionStore, authReposi
             val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
 
             val groupsDetailViewModel = remember {
-                GroupDetailViewModel(groupsRepository, appContainer.eventRepository)
+                GroupDetailViewModel(groupsRepository, eventRepository)
             }
 
             GroupDetailScreen(
@@ -143,7 +147,7 @@ fun SyncUpApp(appContainer: AppContainer, sessionStore: SessionStore, authReposi
             val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
 
             val createEventViewModel = remember {
-                CreateEventViewModel(appContainer.eventRepository)
+                CreateEventViewModel(eventRepository)
             }
 
             CreateEventScreen(
@@ -167,7 +171,7 @@ fun SyncUpApp(appContainer: AppContainer, sessionStore: SessionStore, authReposi
             val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
 
             val eventVotingViewModel = remember {
-                EventVotingViewModel(appContainer.eventRepository, groupsRepository)
+                EventVotingViewModel(eventRepository)
             }
             EventVotingScreen(
                 viewModel = eventVotingViewModel,

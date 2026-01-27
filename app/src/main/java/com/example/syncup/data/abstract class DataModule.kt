@@ -6,6 +6,10 @@ import com.example.syncup.data.repository.group.GroupRemoteDataSource
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.data.repository.auth.AuthRepository
 import com.example.syncup.data.repository.auth.DefaultAuthRepository
+import com.example.syncup.data.repository.event.DefaultEventRemoteDataSource
+import com.example.syncup.data.repository.event.DefaultEventRepository
+import com.example.syncup.data.repository.event.EventRemoteDataSource
+import com.example.syncup.data.repository.event.EventRepository
 import dagger.hilt.components.SingletonComponent
 import dagger.Binds
 import dagger.Module
@@ -29,4 +33,16 @@ abstract class DataModule {
     abstract fun bindAuthRepository(
         authRepository: DefaultAuthRepository
     ): AuthRepository
+
+    @Binds
+    abstract fun bindEventRepository(
+        eventRepository: DefaultEventRepository
+    ): EventRepository
+
+    @Binds
+    abstract fun bindEventRemoteDataSource(
+        eventRemoteDataSource: DefaultEventRemoteDataSource
+    ): EventRemoteDataSource
+
+
 }

@@ -4,7 +4,7 @@ import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
-import com.example.syncup.data.model.events.VoteDraft
+import com.example.syncup.data.model.events.Vote
 
 /**
  * Repository interface for managing [Event] data.
@@ -76,11 +76,9 @@ interface EventRepository {
      */
     suspend fun submitVote(
         eventId: Long,
-        voteDraft: VoteDraft,
-        memberCount: Int
-    )
+        voteDraft: Map<TimeSlot, Vote?>
+    ) : Event
 
     suspend fun getEventTypesForGroup(groupId: Long): Map<Long, EventType>
-    suspend fun getEventTypesAsList(groupId: Long): List<EventType>
     suspend fun addEventType(groupId: Long, type: String, color: Long) : EventType
 }

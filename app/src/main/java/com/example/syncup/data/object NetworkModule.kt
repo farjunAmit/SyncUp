@@ -2,6 +2,7 @@ package com.example.syncup.data
 
 import com.example.syncup.data.net.AuthInterceptor
 import com.example.syncup.data.repository.auth.AuthApi
+import com.example.syncup.data.repository.event.EventApi
 import com.example.syncup.data.repository.group.GroupApi
 import com.example.syncup.data.session.SessionStore
 import dagger.hilt.components.SingletonComponent
@@ -45,4 +46,8 @@ object NetworkModule {
     @Provides
     fun provideAuthApi(retrofit: Retrofit): AuthApi =
         retrofit.create(AuthApi::class.java)
+
+    @Provides
+    fun provideEventApi(retrofit: Retrofit): EventApi =
+        retrofit.create(EventApi::class.java)
 }

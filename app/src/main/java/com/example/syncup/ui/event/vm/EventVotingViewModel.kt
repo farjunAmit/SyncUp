@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
-import com.example.syncup.data.model.events.VoteDraft
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.event.uistate.EventVotingUiState
@@ -27,7 +26,7 @@ import kotlinx.coroutines.launch
  * - Decide how an event is finalized (that logic lives in the repository/domain layer).
  * - Handle navigation or UI rendering logic.
  */
-class EventVotingViewModel(private val eventRepo: EventRepository, private val groupRepo: GroupsRepository) : ViewModel() {
+class EventVotingViewModel(private val eventRepo: EventRepository) : ViewModel() {
 
     /**
      * Internal mutable UI state.
@@ -53,21 +52,16 @@ class EventVotingViewModel(private val eventRepo: EventRepository, private val g
      * 5) Update the UI state with the loaded event and draft.
      *
      * @param eventId The ID of the event to load.
-     * @param userId  The ID of the current user.
      */
-    fun loadEventAndVotes(eventId: Long, userId: Long) {
+    fun loadEventAndVotes(eventId: Long) {
         viewModelScope.launch {
             val event = eventRepo.getById(eventId)
-
-            val possibleSlots = event?.possibleSlots ?: emptySet()
-            val prevVote = event?.getVoteForUser(userId) ?: emptyMap()
-
-            val voteDraft = createVoteDraft(possibleSlots, prevVote, userId)
+            val prevVote = event?.myVotes ?: emptyMap()
 
             _uiState.update { current ->
                 current.copy(
                     event = event,
-                    voteDraft = voteDraft
+                    voteDraft = prevVote
                 )
             }
         }
@@ -86,12 +80,12 @@ class EventVotingViewModel(private val eventRepo: EventRepository, private val g
      */
     fun onVoteChanged(timeSlot: TimeSlot, vote: Vote?) {
         _uiState.update { current ->
-            val oldVote = current.voteDraft ?: return@update current
+            val oldVote = current.voteDraft
 
-            val newVotes = oldVote.votes + (timeSlot to vote)
+            val newVotes = oldVote + (timeSlot to vote)
 
             current.copy(
-                voteDraft = oldVote.copy(votes = newVotes)
+                voteDraft = newVotes
             )
         }
     }
@@ -112,40 +106,10 @@ class EventVotingViewModel(private val eventRepo: EventRepository, private val g
      */
     fun submitVote() {
         viewModelScope.launch {
-            val voteDraft = _uiState.value.voteDraft ?: return@launch
+            val voteDraft = _uiState.value.voteDraft
             val event = _uiState.value.event ?: return@launch
-            val memberCount = groupRepo.getMemberCount(event.groupId)
-            eventRepo.submitVote(event.id, voteDraft, memberCount)
+            eventRepo.submitVote(event.id, voteDraft)
         }
     }
 
-    /**
-     * Creates a new [VoteDraft] for the given user.
-     *
-     * Purpose:
-     * - Ensures that all possible slots exist in the draft.
-     * - Preserves previously submitted votes where available.
-     *
-     * @param possibleSlots All slots that can be voted on in the event.
-     * @param prevVote      The user's previous votes (may be empty).
-     * @param userId        The ID of the user owning this draft.
-     *
-     * @return A fully-initialized [VoteDraft] ready for editing in the UI.
-     */
-    private fun createVoteDraft(
-        possibleSlots: Set<TimeSlot>,
-        prevVote: Map<TimeSlot, Vote?>,
-        userId: Long
-    ): VoteDraft {
-        val votes = mutableMapOf<TimeSlot, Vote?>()
-
-        for (slot in possibleSlots) {
-            votes[slot] = prevVote[slot]
-        }
-
-        return VoteDraft(
-            userId = userId,
-            votes = votes.toMap()
-        )
-    }
 }

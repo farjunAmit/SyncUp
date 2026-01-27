@@ -1,18 +1,28 @@
 package com.example.syncup.data.repository.event
 
+import com.example.syncup.data.dto.EventCreateRequestDto
+import com.example.syncup.data.dto.EventTypeCreateRequestDto
+import com.example.syncup.data.dto.SubmitVoteRequestDto
+import com.example.syncup.data.dto.VoteDto
 import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
-import com.example.syncup.data.model.events.VoteDraft
+import com.example.syncup.data.model.events.Vote
+import javax.inject.Inject
 
-class DefaultEventRepository : EventRepository {
+class DefaultEventRepository @Inject constructor(
+    private val eventRemoteDataSource: EventRemoteDataSource
+) : EventRepository {
+
     override suspend fun getAll(groupId: Long): List<Event> {
-        TODO("Not yet implemented")
+        val events = eventRemoteDataSource.getEvents(groupId)
+        return events.map { it.toEvent() }
     }
 
     override suspend fun getById(id: Long): Event? {
-        TODO("Not yet implemented")
+        val event = eventRemoteDataSource.getEvent(id)
+        return event.toEvent()
     }
 
     override suspend fun create(
@@ -23,27 +33,37 @@ class DefaultEventRepository : EventRepository {
         decisionMode: DecisionMode,
         eventTypeId: Long?
     ): Event {
-        TODO("Not yet implemented")
+        val eventCreateDto = EventCreateRequestDto(
+            groupId = groupId,
+            name = title,
+            description = description,
+            decisionMode = decisionMode,
+            eventTypeId = eventTypeId,
+            possibleSlots = possibleSlots.map { it.toTimeSlotDto() }
+        )
+        val event = eventRemoteDataSource.createEvent(eventCreateDto)
+        return event.toEvent()
     }
 
     override suspend fun delete(eventId: Long) {
-        TODO("Not yet implemented")
+        eventRemoteDataSource.deleteEvent(eventId)
     }
 
     override suspend fun submitVote(
         eventId: Long,
-        voteDraft: VoteDraft,
-        memberCount: Int
-    ) {
-        TODO("Not yet implemented")
+        voteDraft: Map<TimeSlot, Vote?>
+    ) : Event {
+        val submitVoteDto = SubmitVoteRequestDto(
+            eventId = eventId,
+            votes = voteDraft.map { (slot, vote) -> VoteDto(slot.toTimeSlotDto(), vote) }
+        )
+        val event = eventRemoteDataSource.submitVotes(submitVoteDto)
+        return event.toEvent()
     }
 
     override suspend fun getEventTypesForGroup(groupId: Long): Map<Long, EventType> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getEventTypesAsList(groupId: Long): List<EventType> {
-        TODO("Not yet implemented")
+        val eventTypes = eventRemoteDataSource.getEventTypes(groupId)
+        return eventTypes.associateBy({ it.id }, { it.toEventType() })
     }
 
     override suspend fun addEventType(
@@ -51,6 +71,12 @@ class DefaultEventRepository : EventRepository {
         type: String,
         color: Long
     ): EventType {
-        TODO("Not yet implemented")
+        val eventCreateDto = EventTypeCreateRequestDto(
+            groupId = groupId,
+            type = type,
+            color = color
+        )
+        val eventType = eventRemoteDataSource.createEventType(eventCreateDto)
+        return eventType.toEventType()
     }
 }
