@@ -96,11 +96,11 @@ class EventService(
     }
 
     @Transactional
-    fun createEvent(event: EventCreateRequestDto): EventSummaryDto {
+    fun createEvent(groupId : Long, event: EventCreateRequestDto): EventSummaryDto {
         if(event.possibleSlots.isEmpty()) {
             throw EmptyPossibleSlotsException(event.name)
         }
-        val newEvent = eventRepository.save(event.toEventEntity())
+        val newEvent = eventRepository.save(event.toEventEntity(groupId))
         val possibleSlotsEntities = event.possibleSlots.map { slotDto ->
             EventPossibleSlotEntity(
                 event = newEvent,

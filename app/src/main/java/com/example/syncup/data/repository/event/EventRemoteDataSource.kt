@@ -10,7 +10,7 @@ import com.example.syncup.data.dto.SubmitVoteRequestDto
 interface EventRemoteDataSource {
     suspend fun getEvents (groupId: Long): List<EventSummaryDto>
     suspend fun  getEvent (eventId: Long): EventForVotingDto
-    suspend fun createEvent (eventCreateRequestDto: EventCreateRequestDto) : EventSummaryDto
+    suspend fun createEvent (groupId: Long, eventCreateRequestDto: EventCreateRequestDto) : EventSummaryDto
     suspend fun deleteEvent (eventId: Long)
     suspend fun submitVotes (submitVoteRequestDto: SubmitVoteRequestDto) : EventSummaryDto
     suspend fun getEventTypes (groupId: Long) : List<EventTypeDto>

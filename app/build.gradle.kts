@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
+    alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
 }
 
@@ -42,8 +42,12 @@ android {
 }
 
 dependencies {
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.0.21"))
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    //implementation(libs.places)
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.0.21"))
+    implementation("com.google.android.libraries.places:places:4.1.0")
+    ksp(libs.hilt.compiler)
     implementation("androidx.compose.runtime:runtime")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")

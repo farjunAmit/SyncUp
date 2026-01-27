@@ -1,5 +1,6 @@
 package com.example.syncup.data.repository.event
 
+import android.util.Log
 import com.example.syncup.data.dto.EventCreateRequestDto
 import com.example.syncup.data.dto.EventTypeCreateRequestDto
 import com.example.syncup.data.dto.SubmitVoteRequestDto
@@ -9,6 +10,7 @@ import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class DefaultEventRepository @Inject constructor(
@@ -34,15 +36,20 @@ class DefaultEventRepository @Inject constructor(
         eventTypeId: Long?
     ): Event {
         val eventCreateDto = EventCreateRequestDto(
-            groupId = groupId,
             name = title,
             description = description,
             decisionMode = decisionMode,
             eventTypeId = eventTypeId,
             possibleSlots = possibleSlots.map { it.toTimeSlotDto() }
         )
-        val event = eventRemoteDataSource.createEvent(eventCreateDto)
-        return event.toEvent()
+        try {
+            val event = eventRemoteDataSource.createEvent(groupId, eventCreateDto)
+            return event.toEvent()
+        }catch (e : HttpException){
+            val errorString = e.response()?.errorBody()?.string()
+            Log.e("EventRepository", "Error creating event: $errorString")
+        }
+        return TODO("Provide the return value")
     }
 
     override suspend fun delete(eventId: Long) {
@@ -52,7 +59,7 @@ class DefaultEventRepository @Inject constructor(
     override suspend fun submitVote(
         eventId: Long,
         voteDraft: Map<TimeSlot, Vote?>
-    ) : Event {
+    ): Event {
         val submitVoteDto = SubmitVoteRequestDto(
             eventId = eventId,
             votes = voteDraft.map { (slot, vote) -> VoteDto(slot.toTimeSlotDto(), vote) }

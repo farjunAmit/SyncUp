@@ -4,7 +4,6 @@ import com.syncup.syncup_backend.model.DecisionMode
 
 
 data class EventCreateRequestDto(
-    val groupId: Long,
     val name: String,
     val description: String,
     val possibleSlots: List<TimeSlotDto>,

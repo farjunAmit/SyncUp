@@ -16,8 +16,8 @@ class DefaultEventRemoteDataSource @Inject constructor(
 
     override suspend fun getEvent(eventId: Long): EventForVotingDto = eventApi.getEvent(eventId)
 
-    override suspend fun createEvent(eventCreateRequestDto: EventCreateRequestDto): EventSummaryDto =
-        eventApi.createEvent(eventCreateRequestDto)
+    override suspend fun createEvent(groupId: Long, eventCreateRequestDto: EventCreateRequestDto): EventSummaryDto =
+        eventApi.createEvent(groupId, eventCreateRequestDto)
 
     override suspend fun deleteEvent(eventId: Long) = eventApi.deleteEvent(eventId)
 

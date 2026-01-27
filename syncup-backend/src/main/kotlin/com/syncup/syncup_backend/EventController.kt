@@ -13,14 +13,15 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/events")
-class EventController (
+class EventController(
     private val eventService: EventService
-){
+) {
     private fun currentUserId(): Long =
         SecurityContextHolder.getContext().authentication!!.name.toLong()
 
@@ -34,19 +35,22 @@ class EventController (
         return eventService.getEvent(eventId, currentUserId())
     }
 
-    @PostMapping
-    fun createEvent(event: EventCreateRequestDto): EventSummaryDto{
-        return eventService.createEvent(event)
+    @PostMapping("/{groupId}")
+    fun createEvent(
+        @PathVariable("groupId") groupId: Long,
+        @RequestBody event: EventCreateRequestDto
+    ): EventSummaryDto {
+        return eventService.createEvent(groupId, event)
     }
 
     @DeleteMapping("/{eventId}")
-    fun deleteEvent(@PathVariable("eventId") eventId: Long){
+    fun deleteEvent(@PathVariable("eventId") eventId: Long) {
         eventService.deleteEvent(eventId)
     }
 
     @PostMapping("/submit-votes")
-    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) : EventSummaryDto{
-        return eventService.submitVotes(submitVoteRequestDto,currentUserId())
+    fun submitVotes(@RequestBody submitVoteRequestDto: SubmitVoteRequestDto): EventSummaryDto {
+        return eventService.submitVotes(submitVoteRequestDto, currentUserId())
     }
 
     @GetMapping("/types/{groupId}")
@@ -55,7 +59,7 @@ class EventController (
     }
 
     @PutMapping("types/create")
-    fun createEventType(eventCreateDto: EventTypeCreateRequestDto): EventTypeDto {
+    fun createEventType(@RequestBody eventCreateDto: EventTypeCreateRequestDto): EventTypeDto {
         return eventService.createEventType(eventCreateDto)
     }
 }

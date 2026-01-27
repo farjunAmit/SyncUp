@@ -177,7 +177,7 @@ fun CreateEventScreen(
                     )
                     onBack()
                 },
-                enabled = title.isNotBlank() && possibleSlots.isNotEmpty() && currentEventType != null
+                enabled = title.isNotBlank() && possibleSlots.isNotEmpty()
             ) { Text("Create Event") }
         }
     }

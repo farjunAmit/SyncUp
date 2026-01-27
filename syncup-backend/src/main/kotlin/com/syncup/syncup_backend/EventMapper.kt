@@ -36,7 +36,7 @@ fun EventEntity.toEventDto(slots: List<SlotVotingSummaryDto>) : EventForVotingDt
     )
 }
 
-fun EventCreateRequestDto.toEventEntity(): EventEntity {
+fun EventCreateRequestDto.toEventEntity(groupId : Long): EventEntity {
     return EventEntity(
         name = this.name,
         description = this.description,
