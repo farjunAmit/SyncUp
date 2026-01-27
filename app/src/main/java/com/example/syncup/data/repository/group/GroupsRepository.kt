@@ -18,7 +18,6 @@ interface GroupsRepository {
      * Returns all existing groups.
      */
     suspend fun getAll(): List<Group>
-    suspend fun getAll(userId : Long) : List<Group>
 
 
     /**
@@ -31,7 +30,6 @@ interface GroupsRepository {
     suspend fun create(
         name: String,
         invitedEmails: List<String> = emptyList(),
-        userId: Long = 1L
     ): Group
 
     /**

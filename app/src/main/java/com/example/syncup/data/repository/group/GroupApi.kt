@@ -1,6 +1,7 @@
 package com.example.syncup.data.repository.group
 
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
+import com.example.syncup.data.dto.ChangeGroupNameRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
 import com.example.syncup.data.dto.GroupSummaryDto
 import retrofit2.http.Body
@@ -12,22 +13,21 @@ import retrofit2.http.Path
 
 interface GroupApi {
 
-    @GET("groups/{id}")
-    suspend fun getGroups(@Path("id") id: Long): List<GroupSummaryDto>
+    @GET("groups")
+    suspend fun getGroups() : List<GroupSummaryDto>
 
     @GET("groups/get/{id}")
     suspend fun getGroup(@Path("id") id: Long): GroupSummaryDto
 
-    @POST("groups/create/{userId}")
+    @POST("groups/create")
     suspend fun createGroup(
-        @Path("userId") userId: Long,
         @Body body: CreateGroupRequestDto
     ): GroupSummaryDto
 
     @POST("groups/rename/{groupId}")
     suspend fun renameGroup(
         @Path("groupId") groupId: Long,
-        @Body name: String
+        @Body name: ChangeGroupNameRequestDto
     ): GroupSummaryDto
 
     @DELETE("groups/delete/{groupId}")

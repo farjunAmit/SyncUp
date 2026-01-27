@@ -14,3 +14,6 @@ class UserAlreadyExistsException(email: String) :
 
 class HashPasswordFailedException() :
     RuntimeException("Failed to hash password")
+
+class UserRegisterFailedException(e : Exception) :
+    RuntimeException("User registration failed: ${e.message}")

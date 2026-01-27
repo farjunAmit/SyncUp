@@ -4,6 +4,7 @@ import com.syncup.syncup_backend.exceptions.InvalidPasswordOrEmailException
 import com.syncup.syncup_backend.exceptions.UserAlreadyExistsException
 import com.syncup.syncup_backend.exceptions.UserNotFoundException
 import com.syncup.syncup_backend.exceptions.UserNotFoundByEmailException
+import com.syncup.syncup_backend.exceptions.UserRegisterFailedException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -32,4 +33,12 @@ class UserExceptionHandler {
         "errorCode" to "USER_ALREADY_EXISTS",
         "message" to exception.message
     )
+
+    @ExceptionHandler(UserRegisterFailedException::class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun onUserRegisterFailedException(exception: UserRegisterFailedException) = mapOf(
+        "errorCode" to "USER_REGISTER_FAILED",
+        "message" to exception.message
+    )
+
 }

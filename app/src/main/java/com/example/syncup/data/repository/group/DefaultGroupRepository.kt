@@ -1,37 +1,36 @@
 package com.example.syncup.data.repository.group
 
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
+import com.example.syncup.data.dto.ChangeGroupNameRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
 import com.example.syncup.data.model.groups.Group
+import com.example.syncup.data.session.SessionStore
 import javax.inject.Inject
 
 
 class DefaultGroupsRepository @Inject constructor(
-    private val remoteDataSource: GroupRemoteDataSource
+    private val remoteDataSource: GroupRemoteDataSource,
+    private val sessionStore: SessionStore
 ) : GroupsRepository {
-    override suspend fun getAll(): List<Group> {
-        TODO("Not yet implemented")
-    }
 
-    override suspend fun getAll(userId : Long) : List<Group> {
-        return remoteDataSource.getGroups(userId).map { it.toGroup() }
+    override suspend fun getAll(): List<Group> {
+        return remoteDataSource.getGroups().map { it.toGroup() }
     }
 
     override suspend fun create(
         name: String,
         invitedEmails: List<String>,
-        userId: Long,
     ): Group {
         val body = CreateGroupRequestDto(name, invitedEmails)
-        return remoteDataSource.createGroup(userId, body).toGroup()
+        return remoteDataSource.createGroup(body).toGroup()
     }
 
-    override suspend fun rename(id: Long, newName: String) : Group {
-        return remoteDataSource.renameGroup(id, newName).toGroup()
+    override suspend fun rename(id: Long, newName: String): Group {
+        return remoteDataSource.renameGroup(id, ChangeGroupNameRequestDto(newName)).toGroup()
     }
 
     override suspend fun delete(id: Long) {
-       remoteDataSource.deleteGroup(id.toLong())
+        remoteDataSource.deleteGroup(id.toLong())
     }
 
     override suspend fun getGroup(id: Long): Group {

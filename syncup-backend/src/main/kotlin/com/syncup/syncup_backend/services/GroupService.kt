@@ -1,6 +1,7 @@
 package com.syncup.syncup_backend.services
 
 import com.syncup.syncup_backend.dto.AddGroupMemberRequestDto
+import com.syncup.syncup_backend.dto.ChangeGroupNameRequestDto
 import com.syncup.syncup_backend.dto.CreateGroupRequestDto
 import com.syncup.syncup_backend.dto.GroupSummaryDto
 import com.syncup.syncup_backend.entity.GroupMemberEntity
@@ -48,9 +49,9 @@ class GroupService(
         return group.toGroupDto()
     }
 
-    fun renameGroup(groupId : Long, name : String): GroupSummaryDto{
+    fun renameGroup(groupId: Long, name: ChangeGroupNameRequestDto): GroupSummaryDto{
         val group = groupRepository.findById(groupId).orElseThrow { GroupNotFoundException(groupId) }
-        group.name = name
+        group.name = name.name
         return groupRepository.save(group).toGroupDto()
     }
 

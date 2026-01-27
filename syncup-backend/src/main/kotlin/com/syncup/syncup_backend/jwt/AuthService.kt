@@ -7,6 +7,7 @@ import com.syncup.syncup_backend.dto.RegisterRequestDto
 import com.syncup.syncup_backend.exceptions.HashPasswordFailedException
 import com.syncup.syncup_backend.exceptions.InvalidPasswordOrEmailException
 import com.syncup.syncup_backend.exceptions.UserAlreadyExistsException
+import com.syncup.syncup_backend.exceptions.UserRegisterFailedException
 import com.syncup.syncup_backend.repositories.UserRepository
 import com.syncup.syncup_backend.toUserEntity
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -25,11 +26,17 @@ class AuthService (
         val hashedPassword =
             passwordEncoder.encode(registerRequest.password) ?: throw HashPasswordFailedException()
         val user = userRepository.save(registerRequest.toUserEntity(hashedPassword))
-        val token = jwtService.generateToken(user.id)
-        return AuthResponseDto(
-            userId = user.id,
-            token = token
-        )
+        try {
+            val token = jwtService.generateToken(user.id)
+            return AuthResponseDto(
+                userId = user.id,
+                token = token
+            )
+        }
+        catch (e: Exception) {
+            userRepository.deleteById(user.id)
+            throw UserRegisterFailedException(e)
+        }
     }
 
     fun login(loginRequestDto: LoginRequestDto): AuthResponseDto {

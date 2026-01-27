@@ -119,13 +119,13 @@ class EventService(
     }
 
     @Transactional
-    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto) : EventSummaryDto{
+    fun submitVotes(submitVoteRequestDto: SubmitVoteRequestDto, currentUserId: Long) : EventSummaryDto{
         val slots = eventPossibleSlotRepository.findByEvent_Id(submitVoteRequestDto.eventId)
         val slotMap = slots.associateBy { it.timeSlot }
         val event = eventRepository.findById(submitVoteRequestDto.eventId).orElseThrow{
             EventNotFoundException(submitVoteRequestDto.eventId)
         }
-        voteRepository.deleteByEvent_IdAndUserId(submitVoteRequestDto.eventId, submitVoteRequestDto.userId)
+        voteRepository.deleteByEvent_IdAndUserId(submitVoteRequestDto.eventId, currentUserId)
 
         val votes = submitVoteRequestDto.votes.map { voteDto ->
             val slotEntity = slotMap[voteDto.timeSlotDto.toModel()]
@@ -134,7 +134,7 @@ class EventService(
             VoteEntity(
                 event = slotEntity.event,
                 slot = slotEntity,
-                userId = submitVoteRequestDto.userId,
+                userId = currentUserId,
                 vote = voteDto.vote
             )
         }

@@ -47,7 +47,6 @@ fun GroupsScreen(
     onGroupClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     // Collect UI state exposed by the ViewModel (single source of truth for groups list)
     val state = viewModel.uiState.collectAsState().value
 
