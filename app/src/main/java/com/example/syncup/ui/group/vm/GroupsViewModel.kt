@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.group.uistate.GroupsUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * GroupsViewModel
@@ -22,7 +24,8 @@ import kotlinx.coroutines.launch
  * Note: Current implementation uses a simple "reload after change" strategy,
  * which is enough for the in-memory repository and MVP stage.
  */
-class GroupsViewModel(
+@HiltViewModel
+class GroupsViewModel @Inject constructor(
     private val repo: GroupsRepository
 ) : ViewModel() {
 

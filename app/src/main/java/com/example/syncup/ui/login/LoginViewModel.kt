@@ -3,11 +3,14 @@ package com.example.syncup.ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.repository.auth.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel(){
 
@@ -29,6 +32,13 @@ class LoginViewModel(
             if (loginStatus.status){
                 _uiState.value = _uiState.value.copy(isLoggedIn = true)
             }
+        }
+    }
+
+    fun logout(){
+        viewModelScope.launch {
+            authRepository.logout()
+            _uiState.value = _uiState.value.copy(isLoggedIn = false)
         }
     }
 }

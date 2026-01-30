@@ -7,11 +7,13 @@ import com.example.syncup.data.model.events.Vote
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.event.uistate.EventVotingUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * EventVotingViewModel
@@ -26,7 +28,8 @@ import kotlinx.coroutines.launch
  * - Decide how an event is finalized (that logic lives in the repository/domain layer).
  * - Handle navigation or UI rendering logic.
  */
-class EventVotingViewModel(private val eventRepo: EventRepository) : ViewModel() {
+@HiltViewModel
+class EventVotingViewModel @Inject constructor(private val eventRepo: EventRepository) : ViewModel() {
 
     /**
      * Internal mutable UI state.
@@ -53,6 +56,7 @@ class EventVotingViewModel(private val eventRepo: EventRepository) : ViewModel()
      *
      * @param eventId The ID of the event to load.
      */
+
     fun loadEventAndVotes(eventId: Long) {
         viewModelScope.launch {
             val event = eventRepo.getById(eventId)

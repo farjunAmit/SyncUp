@@ -8,12 +8,14 @@ import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.group.uistate.GroupDetailUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import javax.inject.Inject
 
 /**
  * GroupDetailViewModel
@@ -26,7 +28,8 @@ import java.time.LocalDate
  * Note: Current implementation uses a simple "reload after change" strategy,
  * which is enough for the in-memory repository and MVP stage.
  */
-class GroupDetailViewModel(
+@HiltViewModel
+class GroupDetailViewModel @Inject constructor(
     private val groupRepo: GroupsRepository,
     private val eventRepo: EventRepository
 ) : ViewModel() {

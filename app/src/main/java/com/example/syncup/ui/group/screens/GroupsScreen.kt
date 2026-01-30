@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -26,6 +28,7 @@ import com.example.syncup.ui.group.vm.GroupsViewModel
 import com.example.syncup.ui.group.components.GroupCreateSheet
 import com.example.syncup.ui.group.components.GroupEmptyState
 import com.example.syncup.ui.group.components.GroupGrid
+import com.example.syncup.ui.login.LoginViewModel
 
 /**
  * GroupsScreen
@@ -45,7 +48,8 @@ import com.example.syncup.ui.group.components.GroupGrid
 fun GroupsScreen(
     viewModel: GroupsViewModel,
     onGroupClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     // Collect UI state exposed by the ViewModel (single source of truth for groups list)
     val state = viewModel.uiState.collectAsState().value
@@ -57,7 +61,18 @@ fun GroupsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Groups") })
+            TopAppBar(
+                title = { Text("Groups") },
+                navigationIcon = {
+                    IconButton(onClick = { onLogout() })
+                    {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "Logout"
+                        )
+                    }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showCreateSheet = true }) {

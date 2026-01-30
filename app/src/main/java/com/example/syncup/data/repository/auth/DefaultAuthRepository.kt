@@ -48,4 +48,8 @@ class DefaultAuthRepository@Inject constructor(
         }
     }
 
+    override suspend fun logout() {
+        sessionStore.clearToken()
+    }
+
 }

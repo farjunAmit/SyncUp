@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.0.21"))
     implementation(libs.hilt.android)
     //implementation(libs.places)

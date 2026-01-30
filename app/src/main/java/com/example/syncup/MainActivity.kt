@@ -30,12 +30,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var sessionStore: SessionStore
-    @Inject
-    lateinit var authRepository: AuthRepository
-    @Inject
-    lateinit var groupsRepository: GroupsRepository
-    @Inject
-    lateinit var eventRepository: EventRepository
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -47,7 +41,7 @@ class MainActivity : ComponentActivity() {
                 // Top-level background container for the app content
                 Surface(Modifier.fillMaxSize()) {
                     // Root composable that sets up navigation and screens
-                    SyncUpApp(sessionStore,authRepository, groupsRepository, eventRepository)
+                    SyncUpApp(sessionStore)
                 }
             }
         }

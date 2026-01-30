@@ -6,11 +6,13 @@ import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.ui.event.uistate.CreateEventUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * CreateEventViewModel
@@ -18,7 +20,8 @@ import kotlinx.coroutines.launch
  * ViewModel responsible for managing the UI state of CreateEventScreen.
  *
  */
-class CreateEventViewModel(
+@HiltViewModel
+class CreateEventViewModel @Inject constructor(
     val eventRepo: EventRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateEventUiState())

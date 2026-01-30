@@ -28,7 +28,7 @@ class SessionStore @Inject constructor( @ApplicationContext private val context:
         }
     }
 
-    suspend fun clearToken() {
+   suspend fun clearToken() {
         context.dataStore.edit { prefs ->
             prefs.remove(TOKEN_KEY)
         }
