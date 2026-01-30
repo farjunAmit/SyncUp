@@ -23,8 +23,8 @@ class DefaultEventRepository @Inject constructor(
     }
 
     override suspend fun getById(id: Long): Event? {
-            val event = eventRemoteDataSource.getEvent(id)
-            return event.toEvent()
+        val event = eventRemoteDataSource.getEvent(id)
+        return event.toEvent()
     }
 
     override suspend fun create(

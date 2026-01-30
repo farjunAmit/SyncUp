@@ -3,7 +3,9 @@ package com.example.syncup.ui.group.components
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -35,20 +37,27 @@ fun GroupCalendarDey(
             .fillMaxSize()
             .border(width = 1.dp, color = Color.LightGray, shape = RectangleShape)
             .alpha(if (isPass) 0.35f else 1f)
-            .clickable(enabled = !isPass) { onDayClick() }
-            .padding(6.dp),
+            .clickable(enabled = !isPass) { onDayClick() },
         contentAlignment = Alignment.TopCenter
     ) {
-        Text(text = day.dayOfMonth.toString())
-        if (events != null) {
-            val sortedEvents = events.sortedWith { event1, event2 ->
-                isBefore(event1, event2)
-            }
-            sortedEvents.forEach { event ->
-                EventLabel(
-                    event = event,
-                    eventType = eventTypes[event.id]
-                )
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(text = day.dayOfMonth.toString())
+            if (events != null) {
+                val sortedEvents = events.sortedWith { event1, event2 ->
+                    isBefore(event1, event2)
+                }
+                sortedEvents.forEach { event ->
+                    EventLabel(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 2.dp),
+                        event = event,
+                        eventType = eventTypes[event.eventTypeId]
+                    )
+                }
             }
         }
     }

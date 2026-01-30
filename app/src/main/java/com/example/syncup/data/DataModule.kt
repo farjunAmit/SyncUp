@@ -13,9 +13,7 @@ import com.example.syncup.data.repository.event.EventRepository
 import dagger.hilt.components.SingletonComponent
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)

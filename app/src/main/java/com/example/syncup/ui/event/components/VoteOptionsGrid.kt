@@ -41,7 +41,8 @@ import com.example.syncup.data.model.events.Vote
 fun VoteOptionsGrid(
     modifier: Modifier = Modifier,
     userCurrentVote: Map<TimeSlot, Vote?>,
-    onSlotClick: (TimeSlot) -> Unit
+    voteSummary: Map<TimeSlot, Map<Vote, Int>>?,
+    onSlotClick: (TimeSlot) -> Unit,
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxWidth(),
@@ -60,6 +61,7 @@ fun VoteOptionsGrid(
             VoteCell(
                 timeSlot = slot.first,   // The time slot being displayed
                 vote = slot.second,      // The user's vote for this slot
+                voteSummaryForSlot = voteSummary?.get(slot.first),
                 onClick = { onSlotClick(slot.first) }
             )
         }

@@ -58,7 +58,7 @@ class EventController(
         return eventService.getEventTypes(groupId)
     }
 
-    @PutMapping("types/create")
+    @PostMapping("types/create")
     fun createEventType(@RequestBody eventCreateDto: EventTypeCreateRequestDto): EventTypeDto {
         return eventService.createEventType(eventCreateDto)
     }

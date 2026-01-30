@@ -31,5 +31,6 @@ import com.example.syncup.data.model.events.Vote
  */
 data class EventVotingUiState(
     val event: Event? = null,
-    val voteDraft: Map<TimeSlot, Vote?> = emptyMap()
+    val voteDraft: Map<TimeSlot, Vote?> = emptyMap(),
+    val voteSummary: Map<TimeSlot, Map<Vote, Int>>? = emptyMap()
 )

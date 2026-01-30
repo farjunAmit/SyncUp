@@ -1,4 +1,4 @@
-package com.example.syncup.ui.login
+package com.example.syncup.ui.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

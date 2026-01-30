@@ -61,7 +61,8 @@ class EventVotingViewModel(private val eventRepo: EventRepository) : ViewModel()
             _uiState.update { current ->
                 current.copy(
                     event = event,
-                    voteDraft = prevVote
+                    voteDraft = prevVote,
+                    voteSummary = event?.slotCounts
                 )
             }
         }
@@ -80,15 +81,39 @@ class EventVotingViewModel(private val eventRepo: EventRepository) : ViewModel()
      */
     fun onVoteChanged(timeSlot: TimeSlot, vote: Vote?) {
         _uiState.update { current ->
-            val oldVote = current.voteDraft
 
-            val newVotes = oldVote + (timeSlot to vote)
+            val oldVoteDraft = current.voteDraft
+            val oldVote = oldVoteDraft[timeSlot]
+
+            val newVoteDraft = oldVoteDraft + (timeSlot to vote)
+
+            val oldSummaryForSlot =
+                current.voteSummary?.get(timeSlot) ?: emptyMap()
+
+            val newSummaryForSlot = oldSummaryForSlot.toMutableMap()
+
+            if (oldVote != null) {
+                val oldCount = newSummaryForSlot[oldVote] ?: 0
+                newSummaryForSlot[oldVote] = (oldCount - 1).coerceAtLeast(0)
+            }
+
+            if (vote != null) {
+                val newCount = newSummaryForSlot[vote] ?: 0
+                newSummaryForSlot[vote] = newCount + 1
+            }
+
+            val newVoteSummary =
+                current.voteSummary
+                    ?.toMutableMap()
+                    ?.apply { put(timeSlot, newSummaryForSlot) }
 
             current.copy(
-                voteDraft = newVotes
+                voteDraft = newVoteDraft,
+                voteSummary = newVoteSummary
             )
         }
     }
+
 
     /**
      * Submits the current vote draft to the repository.

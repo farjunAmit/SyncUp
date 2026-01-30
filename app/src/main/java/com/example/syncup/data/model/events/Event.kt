@@ -65,6 +65,10 @@ class Event(
     fun setFinalDate(date: TimeSlot?) {
         finalDate = date?.copy()
     }
+
+    fun setEventStatus(status: EventStatus){
+        eventStatus = status
+    }
 }
 
 /**

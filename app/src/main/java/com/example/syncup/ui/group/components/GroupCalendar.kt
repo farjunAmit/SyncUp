@@ -49,7 +49,7 @@ fun GroupCalendar(
                     contentDescription = "Back"
                 )
             }
-            Text(text = month.toString(), modifier = Modifier.weight(1f), fontSize = 20.sp)
+            Text(text = month.toString(), fontSize = 20.sp)
             IconButton(
                 onClick = { month = month.plusMonths(1) }
             ) {

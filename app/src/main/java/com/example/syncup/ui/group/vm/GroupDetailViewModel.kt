@@ -3,6 +3,7 @@ package com.example.syncup.ui.group.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.model.events.Event
+import com.example.syncup.data.model.events.EventStatus
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
@@ -97,7 +98,7 @@ class GroupDetailViewModel(
         val scheduledEvents = mutableMapOf<LocalDate, MutableList<Event>>()
         eventList.forEach {event ->
             val finalDate = event.finalDate
-            if(finalDate != null){
+            if(finalDate != null && event.eventStatus == EventStatus.DECIDED){
                 val date = finalDate.date
                 if(!scheduledEvents.containsKey(date)){
                     scheduledEvents[date] = mutableListOf()

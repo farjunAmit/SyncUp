@@ -20,7 +20,7 @@ import com.example.syncup.ui.group.screens.GroupsScreen
 import com.example.syncup.ui.event.vm.CreateEventViewModel
 import com.example.syncup.ui.event.vm.EventVotingViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
-import com.example.syncup.ui.login.GateScreen
+import com.example.syncup.ui.navigation.GateScreen
 import com.example.syncup.ui.login.LoginScreen
 import com.example.syncup.ui.login.LoginViewModel
 

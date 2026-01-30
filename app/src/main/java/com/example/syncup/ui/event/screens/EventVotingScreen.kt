@@ -59,6 +59,8 @@ fun EventVotingScreen(
     val state = viewModel.uiState.collectAsState().value
     val event = state.event
     val voteDraft = state.voteDraft
+    val voteSummary = state.voteSummary
+
 
     /**
      * Holds the current user's votes for all slots in this event.
@@ -158,7 +160,8 @@ fun EventVotingScreen(
         ) {
             VoteOptionsGrid(
                 userCurrentVote = userCurrentVote,
-                onSlotClick = { chosenTimeSlot = it }
+                voteSummary = voteSummary,
+                onSlotClick = { chosenTimeSlot = it },
             )
 
             Button(

@@ -8,7 +8,7 @@ data class EventSummaryDto(
     val groupId: Long,
     val name: String,
     val description: String,
-    val date: TimeSlot?,
+    val date: TimeSlotDto?,
     val status: EventStatus,
     val eventTypeId: Long?
 )

@@ -50,12 +50,13 @@ import com.example.syncup.data.model.events.Vote
 fun VoteCell(
     timeSlot: TimeSlot,
     vote: Vote?,
-    onClick: () -> Unit
+    voteSummaryForSlot: Map<Vote, Int>?,
+    onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp),
+            .height(250.dp),
 
         // Clicking the card triggers slot selection
         onClick = onClick,
@@ -99,6 +100,10 @@ fun VoteCell(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = timeSlot.partOfDay.toString())
+            Spacer(modifier = Modifier.height(16.dp))
+            VotingProgress(
+                voteSummaryForSlot = voteSummaryForSlot
+            )
         }
     }
 }

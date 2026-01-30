@@ -17,7 +17,10 @@ fun EventSummaryDto.toEvent() : Event{
         description = description,
         eventTypeId = eventTypeId
     )
-    event.setFinalDate(this.date)
+    event.setEventStatus(status)
+    if(date != null){
+        event.setFinalDate(date.toTimeSlot())
+    }
     return event
 }
 
