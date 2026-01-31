@@ -1,7 +1,7 @@
 package com.syncup.syncup_backend.services
 
 import com.syncup.syncup_backend.dto.EventCreateRequestDto
-import com.syncup.syncup_backend.dto.EventForVotingDto
+import com.syncup.syncup_backend.dto.EventDetailDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
 import com.syncup.syncup_backend.dto.EventTypeCreateRequestDto
 import com.syncup.syncup_backend.dto.EventTypeDto
@@ -46,7 +46,7 @@ class EventService(
         return eventRepository.findByGroupId(groupId).map { it.toEventDto() }
     }
 
-    fun getEvent(eventId: Long, userId: Long): EventForVotingDto {
+    fun getEvent(eventId: Long, userId: Long): EventDetailDto {
         val event = eventRepository.findById(eventId)
             .orElseThrow { EventNotFoundException(eventId) }
 
@@ -142,7 +142,7 @@ class EventService(
         voteRepository.flush()
         val slotsAfterVoting = voteRepository.getSlotSummaries(submitVoteRequestDto.eventId)
         val groupSize = groupMemberRepository.countByGroup_Id(event.groupId)
-        val countUser = voteRepository.countDistinctUserIdByEvent_Id(submitVoteRequestDto.eventId)
+        val countUser = voteRepository.countDistinctUsersByEventId(submitVoteRequestDto.eventId)
         if(countUser != groupSize)
             return event.toEventDto()
         var bestSlot : SlotVoteSummary? = null

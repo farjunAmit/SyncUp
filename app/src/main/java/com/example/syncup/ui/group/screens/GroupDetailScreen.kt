@@ -26,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.syncup.data.model.events.EventStatus
 import com.example.syncup.ui.group.components.GroupCalendar
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 
@@ -72,7 +73,10 @@ fun GroupDetailScreen(
                 title = { Text("${state.group?.name}") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -97,28 +101,45 @@ fun GroupDetailScreen(
                 Surface(modifier = Modifier.padding(16.dp)) {
                     GroupCalendar(events = state.scheduledEvents, eventTypes = state.eventTypes)
                 }
+                val activeEvents = state.events.filter {
+                    it.eventStatus == EventStatus.VOTING || it.eventStatus == EventStatus.UNRESOLVED
+                }
+                val closedEvents = state.events
+                    .filter { it.eventStatus == EventStatus.DECIDED || it.eventStatus == EventStatus.CANCELLED }
+                    .sortedBy { if (it.eventStatus == EventStatus.CANCELLED) 1 else 0 }
                 LazyColumn(
                     modifier = Modifier
                         .padding(16.dp)
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(state.events) { event ->
+                    item {
+                        Text("Active:")
+                    }
+                    items(activeEvents) { event ->
                         Text(
-                            event.title,
-                            modifier = Modifier.clickable {
-                                onEventSelected(event.id)
-                            }
+                            text = "${event.title} (${event.eventStatus})",
+                            modifier = Modifier.clickable { onEventSelected(event.id) }
+                        )
+                    }
+                    item {
+                        Text("Closed:")
+                    }
+                    items(closedEvents) { event ->
+                        Text(
+                            text = "${event.title} (${event.eventStatus})",
+                            modifier = Modifier.clickable { onEventSelected(event.id) }
                         )
                     }
                 }
-            }
-            else{
-                Column (
-                    modifier = Modifier.padding(16.dp).fillMaxSize(),
+            } else {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
-                ){
+                ) {
                     Text("Loading...")
                 }
             }

@@ -41,6 +41,8 @@ interface VoteRepository : JpaRepository<VoteEntity, Long> {
 """)
     fun getSlotSummaries(@Param("eventId") eventId: Long): List<SlotVoteSummary>
 
-    //Counts the number of distinct users who voted in an event
-    fun countDistinctUserIdByEvent_Id(eventId: Long): Int
+    @Query("select count(distinct v.userId) from VoteEntity v where v.event.id = :eventId")
+    fun countDistinctUsersByEventId(eventId: Long): Int
+    fun deleteAllByEvent_IdIn(eventIds: List<Long>)
+    fun deleteAllBySlot_IdIn(slotIds: List<Long>)
 }
