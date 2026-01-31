@@ -7,12 +7,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.syncup.Routes
-import com.example.syncup.data.repository.auth.AuthRepository
-import com.example.syncup.data.repository.event.EventRepository
-import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.data.session.SessionStore
 import com.example.syncup.ui.event.screens.CreateEventScreen
-import com.example.syncup.ui.event.screens.EventVotingScreen
+import com.example.syncup.ui.event.screens.EventDetailScreen
 import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
@@ -158,7 +155,7 @@ fun SyncUpApp(sessionStore: SessionStore) {
             val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
 
             val eventVotingViewModel : EventVotingViewModel = hiltViewModel()
-            EventVotingScreen(
+            EventDetailScreen(
                 viewModel = eventVotingViewModel,
                 eventId = eventId,
                 onBack = { navController.popBackStack() }

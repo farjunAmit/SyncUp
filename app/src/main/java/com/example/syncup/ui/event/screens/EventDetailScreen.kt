@@ -1,10 +1,8 @@
 package com.example.syncup.ui.event.screens
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,11 +17,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
-import com.example.syncup.ui.event.components.VoteForSlotSheet
-import com.example.syncup.ui.event.components.VoteOptionsGrid
+import com.example.syncup.ui.event.components.EventVoteContent
 import com.example.syncup.ui.event.vm.EventVotingViewModel
 
 /**
@@ -46,7 +42,7 @@ import com.example.syncup.ui.event.vm.EventVotingViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventVotingScreen(
+fun EventDetailScreen(
     viewModel: EventVotingViewModel,
     eventId: Long,
     onBack: () -> Unit
@@ -119,67 +115,18 @@ fun EventVotingScreen(
                 }
             )
         }
-    ) { innerPadding ->
+    ) {innerPadding ->
 
-        /**
-         * When a slot is selected, show the voting bottom sheet.
-         * currentVote:
-         * - Uses user's current vote for that slot if exists
-         * - Defaults to Vote.NO for UI display (meaning: no selection yet)
-         *
-         * Actions:
-         * - onVote: update the draft with a concrete Vote value (YES/YES_BUT/NO)
-         * - onClear: set null for this slot (meaning: cleared / no selection)
-         * - onDismiss: closes the sheet without changes
-         */
-        chosenTimeSlot?.let {
-            VoteForSlotSheet(
-                timeSlot = it,
-                currentVote = userCurrentVote[it] ?: Vote.NO,
-                onDismiss = { chosenTimeSlot = null },
-                onVote = { vote ->
-                    viewModel.onVoteChanged(it, vote)
-                    chosenTimeSlot = null
-                },
-                onClear = {
-                    viewModel.onVoteChanged(it, null)
-                    chosenTimeSlot = null
-                }
-            )
-        }
-
-        /**
-         * Main content:
-         * - VoteOptionsGrid: shows all slots and current votes for the user.
-         * - Submit button: submits the vote draft and navigates back.
-         */
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(8.dp)
-        ) {
-            VoteOptionsGrid(
-                userCurrentVote = userCurrentVote,
-                voteSummary = voteSummary,
-                onSlotClick = { chosenTimeSlot = it },
-            )
-
-            Button(
-                modifier = Modifier.padding(top = 8.dp),
-                onClick = {
-                    /**
-                     * Submits the vote draft via the ViewModel and returns to previous screen.
-                     *
-                     * Note:
-                     * - Currently navigates back immediately after submit.
-                     * - In later stages, you may want to handle loading/error states.
-                     */
-                    viewModel.submitVote()
-                    onBack()
-                }
-            ) {
-                Text("Submit")
-            }
-        }
+        EventVoteContent(
+            event = event,
+            voteDraft = voteDraft,
+            voteSummary = voteSummary,
+            onVoteChanged = { slot, vote -> viewModel.onVoteChanged(slot, vote) },
+            onSubmit = {
+                viewModel.submitVote()
+                onBack()
+            },
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
