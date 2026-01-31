@@ -139,6 +139,7 @@ class EventService(
             )
         }
         voteRepository.saveAll(votes)
+        voteRepository.flush()
         val slotsAfterVoting = voteRepository.getSlotSummaries(submitVoteRequestDto.eventId)
         val groupSize = groupMemberRepository.countByGroup_Id(event.groupId)
         val countUser = voteRepository.countDistinctUserIdByEvent_Id(submitVoteRequestDto.eventId)

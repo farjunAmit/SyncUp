@@ -66,7 +66,7 @@ class Event(
         finalDate = date?.copy()
     }
 
-    fun setEventStatus(status: EventStatus){
+    fun setEventStatus(status: EventStatus) {
         eventStatus = status
     }
 }
@@ -82,7 +82,10 @@ enum class EventStatus {
     DECIDED,
 
     /** Event was cancelled and is no longer active */
-    CANCELLED
+    CANCELLED,
+
+    /** Event has not been resolved yet */
+    UNRESOLVED
 }
 
 /**

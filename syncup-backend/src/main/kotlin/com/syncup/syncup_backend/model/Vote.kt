@@ -10,5 +10,5 @@ enum class Vote {
     YES_BUT,
 
     /** User is not available for the selected time slot */
-    NO
+    NO,
 }

@@ -61,12 +61,13 @@ class EventVotingViewModel @Inject constructor(private val eventRepo: EventRepos
         viewModelScope.launch {
             val event = eventRepo.getById(eventId)
             val prevVote = event?.myVotes ?: emptyMap()
+            val voteSummary = event?.slotCounts ?: emptyMap()
 
             _uiState.update { current ->
                 current.copy(
                     event = event,
                     voteDraft = prevVote,
-                    voteSummary = event?.slotCounts
+                    voteSummary = voteSummary
                 )
             }
         }
