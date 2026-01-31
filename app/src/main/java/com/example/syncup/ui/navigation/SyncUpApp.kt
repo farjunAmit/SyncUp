@@ -14,11 +14,11 @@ import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
 import com.example.syncup.ui.event.vm.CreateEventViewModel
-import com.example.syncup.ui.event.vm.EventVotingViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
 import com.example.syncup.ui.login.LoginScreen
 import com.example.syncup.ui.login.LoginViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.syncup.ui.event.vm.EventDetailViewModel
 
 /**
  * SyncUpApp
@@ -154,9 +154,9 @@ fun SyncUpApp(sessionStore: SessionStore) {
             // CHANGED: Use getLong
             val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
 
-            val eventVotingViewModel : EventVotingViewModel = hiltViewModel()
+            val eventDetailViewModel : EventDetailViewModel = hiltViewModel()
             EventDetailScreen(
-                viewModel = eventVotingViewModel,
+                viewModel = eventDetailViewModel,
                 eventId = eventId,
                 onBack = { navController.popBackStack() }
             )

@@ -5,8 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
 import com.example.syncup.data.repository.event.EventRepository
-import com.example.syncup.data.repository.group.GroupsRepository
-import com.example.syncup.ui.event.uistate.EventVotingUiState
+import com.example.syncup.ui.event.uistate.EventDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,18 +28,18 @@ import javax.inject.Inject
  * - Handle navigation or UI rendering logic.
  */
 @HiltViewModel
-class EventVotingViewModel @Inject constructor(private val eventRepo: EventRepository) : ViewModel() {
+class EventDetailViewModel @Inject constructor(private val eventRepo: EventRepository) : ViewModel() {
 
     /**
      * Internal mutable UI state.
      * Exposed as an immutable [StateFlow] to the UI.
      */
-    private val _uiState = MutableStateFlow(EventVotingUiState())
+    private val _uiState = MutableStateFlow(EventDetailUiState())
 
     /**
      * Public UI state observed by the composable.
      */
-    val uiState: StateFlow<EventVotingUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<EventDetailUiState> = _uiState.asStateFlow()
 
     /**
      * Loads the event details and the current user's existing votes.

@@ -29,7 +29,7 @@ import com.example.syncup.data.model.events.Vote
  * - After loading, `event` is set first.
  * - `voteDraft` is set once the user's votes are retrieved or initialized.
  */
-data class EventVotingUiState(
+data class EventDetailUiState(
     val event: Event? = null,
     val voteDraft: Map<TimeSlot, Vote?> = emptyMap(),
     val voteSummary: Map<TimeSlot, Map<Vote, Int>>? = emptyMap()
