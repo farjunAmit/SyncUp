@@ -26,9 +26,9 @@ fun EventUnresolvedContent(
         Spacer(modifier = Modifier.padding(top = 16.dp))
         Button(
             onClick = { /* TODO: suggest new dates */ },
-            enabled = false // change to true when feature is ready
         ) {
             Text("Suggest new dates")
+
         }
     }
 }

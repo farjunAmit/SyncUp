@@ -137,6 +137,44 @@ fun SyncUpApp(sessionStore: SessionStore) {
             CreateEventScreen(
                 viewModel = createEventViewModel,
                 groupId = groupId,
+                eventId = null,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(
+            Routes.CREATE_EVENT,
+            arguments = listOf(
+                navArgument("groupId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
+
+            val createEventViewModel : CreateEventViewModel = hiltViewModel()
+
+            CreateEventScreen(
+                viewModel = createEventViewModel,
+                groupId = groupId,
+                eventId = null,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(
+            Routes.EDIT_EVENT,
+            arguments = listOf(
+                navArgument("groupId") { type = NavType.LongType },
+                navArgument("eventId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
+            val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
+            val createEventViewModel : CreateEventViewModel = hiltViewModel()
+
+            CreateEventScreen(
+                viewModel = createEventViewModel,
+                groupId = groupId,
+                eventId = eventId,
                 onBack = { navController.popBackStack() }
             )
         }
