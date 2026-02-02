@@ -36,6 +36,9 @@ import com.example.syncup.ui.event.components.TimeSlotChooseSheet
 import com.example.syncup.ui.event.vm.CreateEventViewModel
 import java.time.LocalDate
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.staticCompositionLocalOf
+import com.example.syncup.data.model.events.BlockReason
+import com.example.syncup.data.model.events.SlotBlock
 import com.example.syncup.ui.event.components.CreateEventTypeDialog
 import com.example.syncup.ui.event.components.EventTypesDropDown
 
@@ -61,24 +64,33 @@ import com.example.syncup.ui.event.components.EventTypesDropDown
 fun CreateEventScreen(
     viewModel: CreateEventViewModel,
     groupId: Long,
+    eventId: Long?,
     onBack: () -> Unit,
-    eventId: Long?
 ) {
     val state = viewModel.uiState.collectAsState().value
     val eventTypes = state.eventTypes
     val currentEventType = state.selectedEventType
+    val event = state.event
 
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-
+    var title by remember { mutableStateOf(event?.title ?: "") }
+    var description by remember { mutableStateOf(event?.description ?: "") }
     val possibleSlots = remember { mutableStateListOf<TimeSlot>() }
-
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    var decisionMode by remember { mutableStateOf(DecisionMode.ALL_OR_NOTHING) }
+    var decisionMode by remember { mutableStateOf(event?.decisionMode ?: DecisionMode.ALL_OR_NOTHING) }
     var showCreateNewTypeDialog by remember { mutableStateOf(false) }
+    val slotsToBlock : MutableMap<TimeSlot, SlotBlock> = mutableMapOf()
+    val localShowMessage = staticCompositionLocalOf<(String) -> Unit> {
+        error("LocalShowMessage not provided")
+    }
+    event?.possibleSlots?.forEach { slot ->
+        slotsToBlock[slot] = SlotBlock(slot, BlockReason.ALREADY_SUGGESTED)
+    }
 
-    LaunchedEffect(groupId) {
+    LaunchedEffect(groupId, eventId) {
         viewModel.loadEventTypes(groupId)
+        if(eventId != null) {
+            viewModel.loadEvent(eventId)
+        }
     }
 
     Scaffold(
@@ -139,7 +151,8 @@ fun CreateEventScreen(
                 },
                 isSelected = { date ->
                     possibleSlots.any { it.date == date }
-                }
+                },
+                slotsToBlock = slotsToBlock
             )
 
             Spacer(modifier = Modifier.height(8.dp))

@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.syncup.data.model.events.SlotBlock
 import java.time.LocalDate
 
 /**
@@ -29,14 +30,16 @@ import java.time.LocalDate
 @Composable
 fun DeyCell(
     date: LocalDate,
+    slotToBlock: SlotBlock?,
     isSelected: Boolean = false,
-    onClick: (date: LocalDate) -> Unit
+    onClick: (date: LocalDate) -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp),
-        onClick = { onClick(date) },
+            .height(100.dp),
+        onClick = {onClick(date)},
+        enabled = slotToBlock == null,
         border = if (isSelected) BorderStroke(1.dp, Color.White) else null
     ) {
         Column(
@@ -48,6 +51,9 @@ fun DeyCell(
             Text(text = date.dayOfWeek.toString().substring(0, 2))
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = date.dayOfMonth.toString() + "/" + date.monthValue.toString())
+            if (slotToBlock != null) {
+                Text(text = slotToBlock.reason.toString(),color = Color.Red)
+            }
         }
     }
 }

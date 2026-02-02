@@ -196,6 +196,9 @@ fun SyncUpApp(sessionStore: SessionStore) {
             EventDetailScreen(
                 viewModel = eventDetailViewModel,
                 eventId = eventId,
+                onClick = { eventId, groupId ->
+                    navController.navigate(Routes.editEvent(eventId, groupId))
+                },
                 onBack = { navController.popBackStack() }
             )
         }

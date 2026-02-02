@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import com.example.syncup.data.model.events.EventStatus
 import com.example.syncup.ui.event.components.EventDetailsContent
+import com.example.syncup.ui.event.components.EventUnresolvedContent
 import com.example.syncup.ui.event.components.EventVoteContent
 import com.example.syncup.ui.event.vm.EventDetailViewModel
 
@@ -49,7 +50,8 @@ import com.example.syncup.ui.event.vm.EventDetailViewModel
 fun EventDetailScreen(
     viewModel: EventDetailViewModel,
     eventId: Long,
-    onBack: () -> Unit
+    onClick: (Long, Long) -> Unit,
+    onBack: () -> Unit,
 ) {
     /**
      * UI state collected from the ViewModel.
@@ -121,7 +123,12 @@ fun EventDetailScreen(
                     }
 
                     EventStatus.UNRESOLVED -> {
-                        Text("Event is in UNRESOLVED status")
+                        EventUnresolvedContent(
+                            event = e,
+                            onClink = {
+                                onClick(eventId, e.groupId)
+                            }
+                        )
                     }
                 }
             }

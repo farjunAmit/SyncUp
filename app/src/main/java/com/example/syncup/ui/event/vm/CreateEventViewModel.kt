@@ -40,6 +40,17 @@ class CreateEventViewModel @Inject constructor(
         }
     }
 
+    fun loadEvent(eventId: Long) {
+        viewModelScope.launch {
+            val event = eventRepo.getById(eventId)
+            _uiState.update { current ->
+                current.copy(
+                    event = event
+                )
+            }
+        }
+    }
+
     fun addEventType(groupId: Long, type: String, color: Long) {
         viewModelScope.launch {
             val newType = eventRepo.addEventType(groupId, type, color)

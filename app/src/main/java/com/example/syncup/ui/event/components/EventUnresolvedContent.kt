@@ -14,6 +14,7 @@ import com.example.syncup.data.model.events.Event
 @Composable
 fun EventUnresolvedContent(
     event: Event,
+    onClink: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -25,7 +26,7 @@ fun EventUnresolvedContent(
         Text(text = "No suitable time slot was found based on the votes.")
         Spacer(modifier = Modifier.padding(top = 16.dp))
         Button(
-            onClick = { /* TODO: suggest new dates */ },
+            onClick = { onClink() },
         ) {
             Text("Suggest new dates")
 

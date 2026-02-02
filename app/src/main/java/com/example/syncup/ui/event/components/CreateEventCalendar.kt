@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import com.example.syncup.data.model.events.Event
+import com.example.syncup.data.model.events.PartOfDay
+import com.example.syncup.data.model.events.SlotBlock
+import com.example.syncup.data.model.events.TimeSlot
 
 /**
  * Calendar component used during event creation to select possible event dates.
@@ -41,7 +43,8 @@ import com.example.syncup.data.model.events.Event
 fun CreateEventCalendar(
     modifier: Modifier = Modifier,
     onCellClick: (date: LocalDate) -> Unit,
-    isSelected: (date: LocalDate) -> Boolean
+    isSelected: (date: LocalDate) -> Boolean,
+    slotsToBlock: MutableMap<TimeSlot, SlotBlock>
 ) {
     val windowDays: Int = 21
     var windowStart by remember { mutableStateOf(LocalDate.now()) }
@@ -81,10 +84,20 @@ fun CreateEventCalendar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(items = datesList) { date ->
+                var slotToBlock: SlotBlock? = null
                 if (date != null) {
+                    val timeSlotOption1 = TimeSlot(date, PartOfDay.MORNING)
+                    val timeSlotOption2 = TimeSlot(date, PartOfDay.EVENING)
+                    if (slotsToBlock.containsKey(timeSlotOption1)) {
+                        slotToBlock = slotsToBlock[timeSlotOption1]
+                    } else if (slotsToBlock.containsKey(timeSlotOption2)) {
+                        slotToBlock = slotsToBlock[timeSlotOption2]
+
+                    }
                     DeyCell(
                         date = date,
                         isSelected = isSelected(date),
+                        slotToBlock = slotToBlock,
                         onClick = onCellClick
                     )
                 }
