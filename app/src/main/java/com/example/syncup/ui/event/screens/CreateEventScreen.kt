@@ -15,10 +15,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,11 +39,13 @@ import com.example.syncup.ui.event.components.TimeSlotChooseSheet
 import com.example.syncup.ui.event.vm.CreateEventViewModel
 import java.time.LocalDate
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.staticCompositionLocalOf
-import com.example.syncup.data.model.events.BlockReason
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
 import com.example.syncup.data.model.events.SlotBlock
 import com.example.syncup.ui.event.components.CreateEventTypeDialog
 import com.example.syncup.ui.event.components.EventTypesDropDown
+import com.example.syncup.ui.event.utils.LocalShowMessage
+import kotlinx.coroutines.launch
 
 /**
  * Screen for creating a new event inside a specific group.
@@ -71,24 +76,31 @@ fun CreateEventScreen(
     val eventTypes = state.eventTypes
     val currentEventType = state.selectedEventType
     val event = state.event
+    val slotsToBlock = state.slotsToBlock
 
     var title by remember { mutableStateOf(event?.title ?: "") }
     var description by remember { mutableStateOf(event?.description ?: "") }
     val possibleSlots = remember { mutableStateListOf<TimeSlot>() }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    var decisionMode by remember { mutableStateOf(event?.decisionMode ?: DecisionMode.ALL_OR_NOTHING) }
-    var showCreateNewTypeDialog by remember { mutableStateOf(false) }
-    val slotsToBlock : MutableMap<TimeSlot, SlotBlock> = mutableMapOf()
-    val localShowMessage = staticCompositionLocalOf<(String) -> Unit> {
-        error("LocalShowMessage not provided")
+    var decisionMode by remember {
+        mutableStateOf(
+            event?.decisionMode ?: DecisionMode.ALL_OR_NOTHING
+        )
     }
-    event?.possibleSlots?.forEach { slot ->
-        slotsToBlock[slot] = SlotBlock(slot, BlockReason.ALREADY_SUGGESTED)
+
+    var showCreateNewTypeDialog by remember { mutableStateOf(false) }
+
+    val snackBarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val showMessage: (String) -> Unit = { msg ->
+        scope.launch {
+            snackBarHostState.showSnackbar(msg)
+        }
     }
 
     LaunchedEffect(groupId, eventId) {
         viewModel.loadEventTypes(groupId)
-        if(eventId != null) {
+        if (eventId != null) {
             viewModel.loadEvent(eventId)
         }
     }
@@ -103,135 +115,139 @@ fun CreateEventScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
+        CompositionLocalProvider(
+            LocalShowMessage provides showMessage
         ) {
-            TextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text("Event Title") },
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Event Description") },
-                singleLine = false,
-                minLines = 3
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row (
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                EventTypesDropDown(
-                    eventTypes = eventTypes,
-                    currentEventType = currentEventType,
-                    onItemClick = {eventType ->
-                        viewModel.setEventType(eventType.id)
-                    })
-                IconButton(
-                    onClick = { showCreateNewTypeDialog = true }
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            ) {
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Event Title") },
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Event Description") },
+                    singleLine = false,
+                    minLines = 3
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Event Type"
-                    )
+                    EventTypesDropDown(
+                        eventTypes = eventTypes,
+                        currentEventType = currentEventType,
+                        onItemClick = { eventType ->
+                            viewModel.setEventType(eventType.id)
+                        })
+                    IconButton(
+                        onClick = { showCreateNewTypeDialog = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Event Type"
+                        )
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            CreateEventCalendar(
-                onCellClick = { date ->
-                    selectedDate = date
-                },
-                isSelected = { date ->
-                    possibleSlots.any { it.date == date }
-                },
-                slotsToBlock = slotsToBlock
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = decisionMode == DecisionMode.ALL_OR_NOTHING,
-                    onClick = { decisionMode = DecisionMode.ALL_OR_NOTHING }
+                CreateEventCalendar(
+                    onCellClick = { date ->
+                        selectedDate = date
+                    },
+                    isSelected = { date ->
+                        possibleSlots.any { it.date == date }
+                    },
+                    slotsToBlock = slotsToBlock
                 )
-                Text("All or nothing")
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = decisionMode == DecisionMode.POINTS,
-                    onClick = { decisionMode = DecisionMode.POINTS }
-                )
-                Text("Points")
-            }
-            Button(
-                onClick = {
-                    val sortedSlots = possibleSlots.sortedBy { it.date }.toMutableSet()
 
-                    viewModel.createEvent(
-                        groupId,
-                        title,
-                        sortedSlots,
-                        description,
-                        decisionMode,
-                        currentEventType?.id
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = decisionMode == DecisionMode.ALL_OR_NOTHING,
+                        onClick = { decisionMode = DecisionMode.ALL_OR_NOTHING }
                     )
-                    onBack()
-                },
-                enabled = title.isNotBlank() && possibleSlots.isNotEmpty()
-            ) { Text("Create Event") }
+                    Text("All or nothing")
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = decisionMode == DecisionMode.POINTS,
+                        onClick = { decisionMode = DecisionMode.POINTS }
+                    )
+                    Text("Points")
+                }
+                Button(
+                    onClick = {
+                        val sortedSlots = possibleSlots.sortedBy { it.date }.toMutableSet()
+
+                        viewModel.createEvent(
+                            groupId,
+                            title,
+                            sortedSlots,
+                            description,
+                            decisionMode,
+                            currentEventType?.id
+                        )
+                        onBack()
+                    },
+                    enabled = title.isNotBlank() && possibleSlots.isNotEmpty()
+                ) { Text("Create Event") }
+            }
+            selectedDate?.let { date ->
+                TimeSlotChooseSheet(
+                    date = date,
+                    initialMorning = possibleSlots.any { timeSlot ->
+                        timeSlot.date == date &&
+                                (timeSlot.partOfDay == PartOfDay.MORNING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
+                    },
+                    initialEvening = possibleSlots.any { timeSlot ->
+                        timeSlot.date == date &&
+                                (timeSlot.partOfDay == PartOfDay.EVENING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
+                    },
+                    onDismiss = { selectedDate = null },
+                    onTimeSlotSelected = { morning, evening, _ ->
+                        val partOfDay: PartOfDay = when {
+                            morning && evening -> PartOfDay.ALL_DAY
+                            morning -> PartOfDay.MORNING
+                            else -> PartOfDay.EVENING
+                        }
+
+                        possibleSlots.removeIf { it.date == date }
+
+                        if (morning || evening) {
+                            possibleSlots.add(TimeSlot(date, partOfDay))
+                        }
+                        selectedDate = null
+                    }
+                )
+            }
+
+            if (showCreateNewTypeDialog) {
+                CreateEventTypeDialog(
+                    onDismissRequest = { showCreateNewTypeDialog = false },
+                    onConfirm = { type, color ->
+                        viewModel.addEventType(groupId, type, color)
+                        showCreateNewTypeDialog = false
+                    }
+                )
+            }
         }
-    }
-
-    selectedDate?.let { date ->
-        TimeSlotChooseSheet(
-            date = date,
-            initialMorning = possibleSlots.any { timeSlot ->
-                timeSlot.date == date &&
-                        (timeSlot.partOfDay == PartOfDay.MORNING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
-            },
-            initialEvening = possibleSlots.any { timeSlot ->
-                timeSlot.date == date &&
-                        (timeSlot.partOfDay == PartOfDay.EVENING || timeSlot.partOfDay == PartOfDay.ALL_DAY)
-            },
-            onDismiss = { selectedDate = null },
-            onTimeSlotSelected = { morning, evening, _ ->
-                val partOfDay: PartOfDay = when {
-                    morning && evening -> PartOfDay.ALL_DAY
-                    morning -> PartOfDay.MORNING
-                    else -> PartOfDay.EVENING
-                }
-
-                possibleSlots.removeIf { it.date == date }
-
-                if (morning || evening) {
-                    possibleSlots.add(TimeSlot(date, partOfDay))
-                }
-                selectedDate = null
-            }
-        )
-    }
-
-    if (showCreateNewTypeDialog) {
-        CreateEventTypeDialog(
-            onDismissRequest = { showCreateNewTypeDialog = false },
-            onConfirm = { type, color ->
-                viewModel.addEventType(groupId, type, color)
-                showCreateNewTypeDialog = false
-            }
-        )
     }
 }

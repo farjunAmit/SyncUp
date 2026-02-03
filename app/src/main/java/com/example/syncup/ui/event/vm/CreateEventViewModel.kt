@@ -2,7 +2,10 @@ package com.example.syncup.ui.event.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.syncup.data.model.events.BlockReason
 import com.example.syncup.data.model.events.DecisionMode
+import com.example.syncup.data.model.events.Event
+import com.example.syncup.data.model.events.SlotBlock
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.ui.event.uistate.CreateEventUiState
@@ -43,9 +46,11 @@ class CreateEventViewModel @Inject constructor(
     fun loadEvent(eventId: Long) {
         viewModelScope.launch {
             val event = eventRepo.getById(eventId)
+            val slotsToBlock = getBlockSlots(event)
             _uiState.update { current ->
                 current.copy(
-                    event = event
+                    event = event,
+                    slotsToBlock = slotsToBlock
                 )
             }
         }
@@ -87,5 +92,15 @@ class CreateEventViewModel @Inject constructor(
         viewModelScope.launch {
             eventRepo.create(groupId, title, possibleSlots, description, decisionMode, eventTypeId)
         }
+    }
+
+    private fun getBlockSlots(event: Event?): Map<TimeSlot, SlotBlock> {
+        val slotsToBlock = mutableMapOf<TimeSlot, SlotBlock>()
+        if (event != null) {
+            for (slot in event.possibleSlots) {
+                slotsToBlock[slot] = SlotBlock(slot, BlockReason.ALREADY_SUGGESTED)
+            }
+        }
+        return slotsToBlock.toMap()
     }
 }

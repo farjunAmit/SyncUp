@@ -44,7 +44,7 @@ fun CreateEventCalendar(
     modifier: Modifier = Modifier,
     onCellClick: (date: LocalDate) -> Unit,
     isSelected: (date: LocalDate) -> Boolean,
-    slotsToBlock: MutableMap<TimeSlot, SlotBlock>
+    slotsToBlock: Map<TimeSlot, SlotBlock>
 ) {
     val windowDays: Int = 21
     var windowStart by remember { mutableStateOf(LocalDate.now()) }
@@ -94,7 +94,7 @@ fun CreateEventCalendar(
                         slotToBlock = slotsToBlock[timeSlotOption2]
 
                     }
-                    DeyCell(
+                    DayCell(
                         date = date,
                         isSelected = isSelected(date),
                         slotToBlock = slotToBlock,
