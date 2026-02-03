@@ -1,6 +1,6 @@
 package com.example.syncup.data.repository.event
 
-import com.example.syncup.data.dto.EventForVotingDto
+import com.example.syncup.data.dto.EventDetailDto
 import com.example.syncup.data.dto.EventSummaryDto
 import com.example.syncup.data.dto.EventTypeDto
 import com.example.syncup.data.dto.TimeSlotDto
@@ -24,11 +24,12 @@ fun EventSummaryDto.toEvent() : Event{
     return event
 }
 
-fun EventForVotingDto.toEvent() : Event{
+fun EventDetailDto.toEvent() : Event{
     val votes = this.slots
     val possibleSlots = votes.map { it.timeSlot.toTimeSlot() }.toSet()
     val myVotes = votes.associate { it.timeSlot.toTimeSlot() to it.myVote }
     val slotCounts = votes.associate { it.timeSlot.toTimeSlot() to it.votes }
+    val status = this.eventStatus
     val event = Event(
         id = id,
         groupId = groupId,
@@ -37,6 +38,7 @@ fun EventForVotingDto.toEvent() : Event{
         description = description,
         eventTypeId = eventTypeId
     )
+    event.setEventStatus(status)
     event.myVotes = myVotes
     event.slotCounts = slotCounts
     return event

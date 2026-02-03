@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface EventPossibleSlotRepository : JpaRepository<EventPossibleSlotEntity, Long> {
     fun findByEvent_Id(eventId: Long): List<EventPossibleSlotEntity>
-
     fun findByEvent_IdAndTimeSlot(eventId: Long, timeSlot: TimeSlot): EventPossibleSlotEntity?
+    fun findAllByEvent_IdIn(eventIds: List<Long>): List<EventPossibleSlotEntity>
+    fun deleteAllByEvent_IdIn(eventIds: List<Long>)
 }

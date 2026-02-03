@@ -1,13 +1,13 @@
-package com.syncup.syncup_backend.dto
+package com.example.syncup.data.dto
 
-import com.syncup.syncup_backend.model.TimeSlot
-import com.syncup.syncup_backend.model.Vote
+import com.example.syncup.data.model.events.EventStatus
 
-data class EventForVotingDto(
+data class EventDetailDto(
     val id: Long,
     val groupId: Long,
     val name: String,
     val description: String,
     val eventTypeId: Long?,
+    val eventStatus: EventStatus,
     val slots: List<SlotVotingSummaryDto>
 )

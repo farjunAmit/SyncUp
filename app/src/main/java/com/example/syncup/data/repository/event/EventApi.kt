@@ -1,7 +1,7 @@
 package com.example.syncup.data.repository.event
 
 import com.example.syncup.data.dto.EventCreateRequestDto
-import com.example.syncup.data.dto.EventForVotingDto
+import com.example.syncup.data.dto.EventDetailDto
 import com.example.syncup.data.dto.EventSummaryDto
 import com.example.syncup.data.dto.EventTypeCreateRequestDto
 import com.example.syncup.data.dto.EventTypeDto
@@ -18,7 +18,7 @@ interface EventApi {
     suspend fun getEvents(@Path("groupId") groupId: Long): List<EventSummaryDto>
 
     @GET("events/voting/{eventId}")
-    suspend fun getEvent(@Path("eventId") eventId: Long): EventForVotingDto
+    suspend fun getEvent(@Path("eventId") eventId: Long): EventDetailDto
 
     @POST("events/{groupId}")
     suspend fun createEvent(@Path("groupId") groupId: Long, @Body eventCreateRequestDto: EventCreateRequestDto) : EventSummaryDto

@@ -1,7 +1,7 @@
 package com.syncup.syncup_backend
 
 import com.syncup.syncup_backend.dto.EventCreateRequestDto
-import com.syncup.syncup_backend.dto.EventForVotingDto
+import com.syncup.syncup_backend.dto.EventDetailDto
 import com.syncup.syncup_backend.dto.EventSummaryDto
 import com.syncup.syncup_backend.dto.EventTypeCreateRequestDto
 import com.syncup.syncup_backend.dto.EventTypeDto
@@ -25,14 +25,15 @@ fun EventEntity.toEventDto(): EventSummaryDto {
     )
 }
 
-fun EventEntity.toEventDto(slots: List<SlotVotingSummaryDto>) : EventForVotingDto{
-    return EventForVotingDto(
+fun EventEntity.toEventDto(slots: List<SlotVotingSummaryDto>) : EventDetailDto{
+    return EventDetailDto(
         id = this.id,
         name = this.name,
         description = this.description,
         groupId = this.groupId,
         eventTypeId = this.eventTypeId,
-        slots = slots
+        slots = slots,
+        eventStatus = this.status
     )
 }
 

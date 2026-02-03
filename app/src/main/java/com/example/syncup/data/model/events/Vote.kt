@@ -12,5 +12,13 @@ enum class Vote {
     YES_BUT,
 
     /** User is not available for the selected time slot */
-    NO
+    NO;
+
+    override fun toString(): String {
+        return when (this) {
+            YES -> "Yes"
+            YES_BUT -> "Yes, but..."
+            NO -> "No"
+        }
+    }
 }

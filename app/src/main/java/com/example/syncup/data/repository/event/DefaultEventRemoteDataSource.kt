@@ -1,7 +1,7 @@
 package com.example.syncup.data.repository.event
 
 import com.example.syncup.data.dto.EventCreateRequestDto
-import com.example.syncup.data.dto.EventForVotingDto
+import com.example.syncup.data.dto.EventDetailDto
 import com.example.syncup.data.dto.EventSummaryDto
 import com.example.syncup.data.dto.EventTypeCreateRequestDto
 import com.example.syncup.data.dto.EventTypeDto
@@ -14,7 +14,7 @@ class DefaultEventRemoteDataSource @Inject constructor(
     override suspend fun getEvents(groupId: Long): List<EventSummaryDto> =
         eventApi.getEvents(groupId)
 
-    override suspend fun getEvent(eventId: Long): EventForVotingDto = eventApi.getEvent(eventId)
+    override suspend fun getEvent(eventId: Long): EventDetailDto = eventApi.getEvent(eventId)
 
     override suspend fun createEvent(groupId: Long, eventCreateRequestDto: EventCreateRequestDto): EventSummaryDto =
         eventApi.createEvent(groupId, eventCreateRequestDto)

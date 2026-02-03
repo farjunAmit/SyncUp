@@ -7,21 +7,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.syncup.Routes
-import com.example.syncup.data.repository.auth.AuthRepository
-import com.example.syncup.data.repository.event.EventRepository
-import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.data.session.SessionStore
 import com.example.syncup.ui.event.screens.CreateEventScreen
-import com.example.syncup.ui.event.screens.EventVotingScreen
+import com.example.syncup.ui.event.screens.EventDetailScreen
 import com.example.syncup.ui.group.screens.GroupDetailScreen
 import com.example.syncup.ui.group.vm.GroupDetailViewModel
 import com.example.syncup.ui.group.screens.GroupsScreen
 import com.example.syncup.ui.event.vm.CreateEventViewModel
-import com.example.syncup.ui.event.vm.EventVotingViewModel
 import com.example.syncup.ui.group.vm.GroupsViewModel
 import com.example.syncup.ui.login.LoginScreen
 import com.example.syncup.ui.login.LoginViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.syncup.ui.event.vm.EventDetailViewModel
 
 /**
  * SyncUpApp
@@ -140,6 +137,44 @@ fun SyncUpApp(sessionStore: SessionStore) {
             CreateEventScreen(
                 viewModel = createEventViewModel,
                 groupId = groupId,
+                eventId = null,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(
+            Routes.CREATE_EVENT,
+            arguments = listOf(
+                navArgument("groupId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
+
+            val createEventViewModel : CreateEventViewModel = hiltViewModel()
+
+            CreateEventScreen(
+                viewModel = createEventViewModel,
+                groupId = groupId,
+                eventId = null,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(
+            Routes.EDIT_EVENT,
+            arguments = listOf(
+                navArgument("groupId") { type = NavType.LongType },
+                navArgument("eventId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: return@composable
+            val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
+            val createEventViewModel : CreateEventViewModel = hiltViewModel()
+
+            CreateEventScreen(
+                viewModel = createEventViewModel,
+                groupId = groupId,
+                eventId = eventId,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -157,10 +192,13 @@ fun SyncUpApp(sessionStore: SessionStore) {
             // CHANGED: Use getLong
             val eventId = backStackEntry.arguments?.getLong("eventId") ?: return@composable
 
-            val eventVotingViewModel : EventVotingViewModel = hiltViewModel()
-            EventVotingScreen(
-                viewModel = eventVotingViewModel,
+            val eventDetailViewModel : EventDetailViewModel = hiltViewModel()
+            EventDetailScreen(
+                viewModel = eventDetailViewModel,
                 eventId = eventId,
+                onClick = { eventId, groupId ->
+                    navController.navigate(Routes.editEvent(eventId, groupId))
+                },
                 onBack = { navController.popBackStack() }
             )
         }
