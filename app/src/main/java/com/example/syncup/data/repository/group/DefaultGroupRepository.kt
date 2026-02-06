@@ -4,13 +4,20 @@ import android.util.Log
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
 import com.example.syncup.data.dto.ChangeGroupNameRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
+import com.example.syncup.data.local.GroupDao
+import com.example.syncup.data.mapper.toGroup
+import com.example.syncup.data.mapper.toGroupEntity
 import com.example.syncup.data.model.groups.Group
+import com.example.syncup.data.remote.group.GroupRemoteDataSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import javax.inject.Inject
 
 
-class DefaultGroupsRepository @Inject constructor(
+class DefaultGroupRepository @Inject constructor(
     private val remoteDataSource: GroupRemoteDataSource,
+    private val groupDao: GroupDao
 ) : GroupsRepository {
 
     override suspend fun getAll(): List<Group> {
@@ -50,5 +57,20 @@ class DefaultGroupsRepository @Inject constructor(
 
     override suspend fun getMemberCount(groupId: Long): Int {
         return remoteDataSource.getGroupSize(groupId)
+    }
+
+    override fun observeAll(): Flow<List<Group>> {
+        return groupDao.getGroups().map { entity -> entity.map { it.toGroup() } }
+    }
+
+    override suspend fun refresh() {
+        val groups = remoteDataSource.getGroups().map { it.toGroupEntity() }
+        if(groups.isEmpty()){
+            groupDao.clear()
+        }
+        else {
+            groupDao.deleteGroupsNotIn(groups.map { it.id })
+            groupDao.upsertGroups(groups)
+        }
     }
 }

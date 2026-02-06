@@ -1,6 +1,7 @@
 package com.example.syncup.data.repository.group
 
 import com.example.syncup.data.model.groups.Group
+import kotlinx.coroutines.flow.Flow
 
 /**
  * GroupsRepository
@@ -68,4 +69,8 @@ interface GroupsRepository {
      * @param groupId The unique identifier of the group.
      */
     suspend fun getMemberCount(groupId: Long) : Int
+
+    fun observeAll(): Flow<List<Group>>
+
+    suspend fun refresh()
 }

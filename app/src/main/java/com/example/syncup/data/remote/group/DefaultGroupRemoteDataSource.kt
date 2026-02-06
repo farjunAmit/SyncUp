@@ -1,4 +1,4 @@
-package com.example.syncup.data.repository.group
+package com.example.syncup.data.remote.group
 
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
 import com.example.syncup.data.dto.ChangeGroupNameRequestDto
