@@ -51,13 +51,13 @@ fun GroupsScreen(
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Collect UI state exposed by the ViewModel (single source of truth for groups list)
-    val state = viewModel.uiState.collectAsState().value
+    val state by viewModel.uiState.collectAsState() //Will handle loading and error states
+    val groups by viewModel.groups.collectAsState()
 
     // Local UI state controlling the visibility of the create bottom sheet
     var showCreateSheet by remember { mutableStateOf(false) }
 
-    val isEmpty = state.groups.isEmpty()
+    val isEmpty = groups.isEmpty()
 
     Scaffold(
         topBar = {
@@ -89,7 +89,7 @@ fun GroupsScreen(
         ) {
 
             Spacer(Modifier.height(12.dp))
-            Text("Group: ${state.groups.size}")
+            Text("Group: ${groups.size}")
             Spacer(Modifier.height(12.dp))
 
             if (isEmpty) {
@@ -98,7 +98,7 @@ fun GroupsScreen(
             } else {
                 // Groups are presented in a grid; actions are delegated via callbacks
                 GroupGrid(
-                    groups = state.groups,
+                    groups = groups,
                     onGroupClick = { groupId -> onGroupClick(groupId) },
                     onDelete = { groupId -> viewModel.deleteGroup(groupId) },
                     onEdit = { groupId, newName -> viewModel.renameGroup(groupId, newName) },

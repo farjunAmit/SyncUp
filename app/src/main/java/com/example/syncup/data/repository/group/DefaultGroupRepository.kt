@@ -10,6 +10,7 @@ import com.example.syncup.data.mapper.toGroupEntity
 import com.example.syncup.data.model.groups.Group
 import com.example.syncup.data.remote.group.GroupRemoteDataSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -29,20 +30,26 @@ class DefaultGroupRepository @Inject constructor(
         invitedEmails: List<String>,
     ): Group {
         val body = CreateGroupRequestDto(name, invitedEmails)
-        return remoteDataSource.createGroup(body).toGroup()
+        val groupEntity = remoteDataSource.createGroup(body).toGroupEntity()
+        groupDao.upsertGroup(groupEntity)
+        return groupEntity.toGroup()
     }
 
     override suspend fun rename(id: Long, newName: String): Group {
-        return remoteDataSource.renameGroup(id, ChangeGroupNameRequestDto(newName)).toGroup()
+        val groupEntity = groupDao.getGroupById(id).first()
+        groupEntity?.let { old ->
+            val updated = old.copy(name = newName)
+            groupDao.upsertGroup(updated)
+        }
+        return remoteDataSource
+            .renameGroup(id, ChangeGroupNameRequestDto(newName))
+            .toGroup()
     }
 
+
     override suspend fun delete(id: Long) {
-        try {
-            remoteDataSource.deleteGroup(id)
-        }catch (e: HttpException) {
-            val body = e.response()?.errorBody()?.string()
-            Log.e("API", "HTTP ${e.code()} body=$body", e)
-        }
+        remoteDataSource.deleteGroup(id)
+        groupDao.deleteGroup(id)
     }
 
     override suspend fun getGroup(id: Long): Group {

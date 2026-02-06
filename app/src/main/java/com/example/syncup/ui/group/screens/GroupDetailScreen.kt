@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -56,16 +57,24 @@ fun GroupDetailScreen(
     onBack: () -> Unit
 ) {
     val state = viewModel.uiState.collectAsState().value
-    val index = state.groups.indexOfFirst { it.id == groupId }
+    val groups by viewModel.groups.collectAsState()
+
+    val index = groups.indexOfFirst { it.id == groupId }
     //If groupId is not found, default to index 0
     val selectedTabIndex = index
     // Runs loadGroup only when groupId changes, not on every recomposition
+    LaunchedEffect(groupId, groups) {
+        if (groupId != null && groups.isNotEmpty()) {
+            viewModel.loadGroup(groupId)
+        }
+    }
+
     LaunchedEffect(groupId) {
         if (groupId != null) {
-            viewModel.loadGroup(groupId)
             viewModel.loadEvents(groupId)
         }
     }
+
 
     Scaffold(
         topBar = {
@@ -90,7 +99,7 @@ fun GroupDetailScreen(
         Column(modifier = Modifier.padding(innerPadding)) {
             if (index != -1) {
                 ScrollableTabRow(selectedTabIndex = selectedTabIndex) {
-                    state.groups.forEachIndexed { index, group ->
+                    groups.forEachIndexed { index, group ->
                         Tab(
                             selected = index == selectedTabIndex,
                             text = { Text(group.name) },

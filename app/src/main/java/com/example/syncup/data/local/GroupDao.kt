@@ -18,6 +18,8 @@ interface GroupDao {
     @Delete
     suspend fun deleteGroup(group: GroupEntity)
 
+    @Query("DELETE FROM `groups` WHERE id = :id")
+    suspend fun deleteGroup(id: Long)
     @Query("DELETE FROM `groups` WHERE id NOT IN (:ids)")
     suspend fun deleteGroupsNotIn(ids: List<Long>)
 

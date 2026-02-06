@@ -15,7 +15,6 @@ import java.time.LocalDate
  * This state is exposed by GroupDetailViewModel and observed by the UI.
  */
 data class GroupDetailUiState(
-    val groups: List<Group> = emptyList(),
     val events: List<Event> = emptyList(),
     val scheduledEvents: Map<LocalDate, List<Event>> = emptyMap(),
     val eventTypes: Map<Long, EventType> = emptyMap(),

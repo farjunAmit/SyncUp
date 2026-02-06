@@ -5,13 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventStatus
 import com.example.syncup.data.model.events.TimeSlot
+import com.example.syncup.data.model.groups.Group
 import com.example.syncup.data.repository.event.EventRepository
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.group.uistate.GroupDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -35,38 +38,21 @@ class GroupDetailViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GroupDetailUiState())
     val uiState: StateFlow<GroupDetailUiState> = _uiState.asStateFlow()
-
-    /**
-     * Loads the details of a specific group from the repository and updates the UI state.
-     * Runs in viewModelScope to keep async work lifecycle-aware.
-     */
-    init {
-        loadGroups()
-    }
-
-    /**
-     * Loads the current list of groups from the repository and updates the UI state.
-     */
-    private fun loadGroups() {
-        viewModelScope.launch {
-            _uiState.update { current ->
-                current.copy(groups = groupRepo.getAll())
-            }
-        }
-    }
+    val groups: StateFlow<List<Group>> =
+        groupRepo.observeAll()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
 
     /**
      * Loads the details of a specific group from the repository and updates the UI state.
      */
     fun loadGroup(id: Long) {
-        viewModelScope.launch {
-            // If the UI state is empty, load groups before loading the specific group
-            if (_uiState.value.groups.isEmpty()) {
-                val groups = groupRepo.getAll()
-                _uiState.update { it.copy(groups = groups) }
-            }
-            val group = _uiState.value.groups.find { it.id == id }
-            _uiState.update { it.copy(group = group) }
+        val group = groups.value.find { it.id == id }
+        _uiState.update { current ->
+            current.copy(group = group)
         }
     }
 

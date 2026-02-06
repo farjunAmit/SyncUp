@@ -2,12 +2,15 @@ package com.example.syncup.ui.group.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.syncup.data.model.groups.Group
 import com.example.syncup.data.repository.group.GroupsRepository
 import com.example.syncup.ui.group.uistate.GroupsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,20 +38,18 @@ class GroupsViewModel @Inject constructor(
     // Public read-only state observed by the UI (single source of truth)
     val uiState: StateFlow<GroupsUiState> = _uiState.asStateFlow()
 
+    val groups: StateFlow<List<Group>> =
+        repo.observeAll()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
+
     init {
         // Load initial data when the ViewModel is created
-        loadGroups()
-    }
-
-    /**
-     * Loads the current list of groups from the repository and updates the UI state.
-     * Synchronous because the current repository implementation is local/in-memory.
-     */
-    fun loadGroups() {
         viewModelScope.launch {
-            _uiState.update { current ->
-                current.copy(groups = repo.getAll())
-            }
+            repo.refresh()
         }
     }
 
@@ -59,7 +60,6 @@ class GroupsViewModel @Inject constructor(
     fun addGroup(name: String, invitedEmails: List<String> = emptyList()) {
         viewModelScope.launch {
             repo.create(name, invitedEmails)
-            loadGroups()
         }
     }
 
@@ -69,7 +69,6 @@ class GroupsViewModel @Inject constructor(
     fun renameGroup(id: Long, newName: String) {
         viewModelScope.launch {
             repo.rename(id, newName)
-            loadGroups()
         }
     }
 
@@ -79,7 +78,6 @@ class GroupsViewModel @Inject constructor(
     fun deleteGroup(id: Long) {
         viewModelScope.launch {
             repo.delete(id)
-            loadGroups()
         }
     }
 }
