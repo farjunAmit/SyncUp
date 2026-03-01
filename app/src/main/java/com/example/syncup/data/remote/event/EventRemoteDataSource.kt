@@ -1,4 +1,4 @@
-package com.example.syncup.data.repository.event
+package com.example.syncup.data.remote.event
 
 import com.example.syncup.data.dto.EventCreateRequestDto
 import com.example.syncup.data.dto.EventDetailDto

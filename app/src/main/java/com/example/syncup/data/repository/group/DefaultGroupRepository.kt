@@ -1,6 +1,5 @@
 package com.example.syncup.data.repository.group
 
-import android.util.Log
 import com.example.syncup.data.dto.AddGroupMemberRequestDto
 import com.example.syncup.data.dto.ChangeGroupNameRequestDto
 import com.example.syncup.data.dto.CreateGroupRequestDto
@@ -8,11 +7,10 @@ import com.example.syncup.data.local.GroupDao
 import com.example.syncup.data.mapper.toGroup
 import com.example.syncup.data.mapper.toGroupEntity
 import com.example.syncup.data.model.groups.Group
-import com.example.syncup.data.remote.group.GroupRemoteDataSource
+import com.example.syncup.data.remote.event.group.GroupRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import retrofit2.HttpException
 import javax.inject.Inject
 
 

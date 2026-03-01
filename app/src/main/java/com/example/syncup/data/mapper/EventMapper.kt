@@ -1,4 +1,4 @@
-package com.example.syncup.data.repository.event
+package com.example.syncup.data.mapper
 
 import com.example.syncup.data.dto.EventDetailDto
 import com.example.syncup.data.dto.EventSummaryDto
@@ -8,7 +8,7 @@ import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
 
-fun EventSummaryDto.toEvent() : Event{
+fun EventSummaryDto.toEvent() : Event {
     val event = Event(
         id = id,
         groupId = groupId,
@@ -24,7 +24,7 @@ fun EventSummaryDto.toEvent() : Event{
     return event
 }
 
-fun EventDetailDto.toEvent() : Event{
+fun EventDetailDto.toEvent() : Event {
     val votes = this.slots
     val possibleSlots = votes.map { it.timeSlot.toTimeSlot() }.toSet()
     val myVotes = votes.associate { it.timeSlot.toTimeSlot() to it.myVote }
@@ -44,14 +44,14 @@ fun EventDetailDto.toEvent() : Event{
     return event
 }
 
-fun TimeSlotDto.toTimeSlot() : TimeSlot{
+fun TimeSlotDto.toTimeSlot() : TimeSlot {
     return TimeSlot(
         date = date,
         partOfDay = partOfDay
     )
 }
 
-fun TimeSlot.toTimeSlotDto() : TimeSlotDto{
+fun TimeSlot.toTimeSlotDto() : TimeSlotDto {
     return TimeSlotDto(
         date = date,
         partOfDay = partOfDay

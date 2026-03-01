@@ -2,8 +2,8 @@ package com.example.syncup.data
 
 import com.example.syncup.data.net.AuthInterceptor
 import com.example.syncup.data.repository.auth.AuthApi
-import com.example.syncup.data.repository.event.EventApi
-import com.example.syncup.data.remote.group.GroupApi
+import com.example.syncup.data.remote.event.EventApi
+import com.example.syncup.data.remote.event.group.GroupApi
 import com.example.syncup.data.session.SessionStore
 import java.time.LocalDate
 import com.google.gson.GsonBuilder

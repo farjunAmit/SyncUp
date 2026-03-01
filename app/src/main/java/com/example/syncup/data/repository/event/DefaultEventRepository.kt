@@ -1,16 +1,18 @@
 package com.example.syncup.data.repository.event
 
-import android.util.Log
 import com.example.syncup.data.dto.EventCreateRequestDto
 import com.example.syncup.data.dto.EventTypeCreateRequestDto
 import com.example.syncup.data.dto.SubmitVoteRequestDto
 import com.example.syncup.data.dto.VoteDto
+import com.example.syncup.data.mapper.toEvent
+import com.example.syncup.data.mapper.toEventType
+import com.example.syncup.data.mapper.toTimeSlotDto
 import com.example.syncup.data.model.events.DecisionMode
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
-import retrofit2.HttpException
+import com.example.syncup.data.remote.event.EventRemoteDataSource
 import javax.inject.Inject
 
 class DefaultEventRepository @Inject constructor(
