@@ -15,5 +15,8 @@ data class EventEntity(
     val status: EventStatus,
     val decisionMode: DecisionMode,
     val eventTypeId: Long?,
-    val finalDateJson: String? // Simplified: Store as JSON or use TypeConverter
+    val possibleSlotsJson: String,
+    val myVotesJson: String,
+    val slotCountsJson: String,
+    val finalDateJson: String?
 )

@@ -4,9 +4,18 @@ import com.example.syncup.data.dto.EventDetailDto
 import com.example.syncup.data.dto.EventSummaryDto
 import com.example.syncup.data.dto.EventTypeDto
 import com.example.syncup.data.dto.TimeSlotDto
+import com.example.syncup.data.local.EventEntity
+import com.example.syncup.data.local.EventTypeEntity
 import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
+import com.example.syncup.data.model.events.PartOfDay
 import com.example.syncup.data.model.events.TimeSlot
+import com.example.syncup.data.model.events.Vote
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.time.LocalDate
+
+private val gson = Gson()
 
 fun EventSummaryDto.toEvent() : Event {
     val event = Event(
@@ -42,6 +51,62 @@ fun EventDetailDto.toEvent() : Event {
     event.myVotes = myVotes
     event.slotCounts = slotCounts
     return event
+}
+
+fun Event.toEntity(): EventEntity {
+    return EventEntity(
+        id = id,
+        groupId = groupId,
+        title = title,
+        description = description,
+        status = eventStatus,
+        decisionMode = decisionMode,
+        eventTypeId = eventTypeId,
+        possibleSlotsJson = gson.toJson(possibleSlots),
+        myVotesJson = gson.toJson(myVotes),
+        slotCountsJson = gson.toJson(slotCounts),
+        finalDateJson = gson.toJson(finalDate)
+    )
+}
+
+fun EventEntity.toEvent(): Event {
+    val possibleSlotsType = object : TypeToken<Set<TimeSlot>>() {}.type
+    val myVotesType = object : TypeToken<Map<TimeSlot, Vote?>>() {}.type
+    val slotCountsType = object : TypeToken<Map<TimeSlot, Map<Vote, Int>>>() {}.type
+    val finalDateType = object : TypeToken<TimeSlot?>() {}.type
+
+    val event = Event(
+        id = id,
+        groupId = groupId,
+        title = title,
+        possibleSlots = gson.fromJson(possibleSlotsJson, possibleSlotsType),
+        description = description,
+        decisionMode = decisionMode,
+        eventTypeId = eventTypeId
+    )
+    event.setEventStatus(status)
+    event.myVotes = gson.fromJson(myVotesJson, myVotesType)
+    event.slotCounts = gson.fromJson(slotCountsJson, slotCountsType)
+    event.setFinalDate(gson.fromJson(finalDateJson, finalDateType))
+    return event
+}
+
+fun EventType.toEntity(): EventTypeEntity {
+    return EventTypeEntity(
+        id = id,
+        groupId = groupId,
+        type = name,
+        color = color
+    )
+}
+
+fun EventTypeEntity.toEventType(): EventType {
+    return EventType(
+        id = id,
+        name = type,
+        color = color,
+        groupId = groupId
+    )
 }
 
 fun TimeSlotDto.toTimeSlot() : TimeSlot {

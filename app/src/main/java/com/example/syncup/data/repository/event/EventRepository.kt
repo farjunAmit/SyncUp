@@ -5,6 +5,7 @@ import com.example.syncup.data.model.events.Event
 import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for managing [Event] data.
@@ -12,37 +13,26 @@ import com.example.syncup.data.model.events.Vote
  * This interface defines the contract for accessing and modifying
  * event-related data, regardless of the underlying data source
  * (e.g. in-memory, local database, or remote backend).
- *
- * Implementations of this repository are responsible for data retrieval,
- * persistence, and mapping, while higher layers should rely only on this
- * abstraction.
  */
 interface EventRepository {
+    
     /**
-     * Returns all events that belong to the given group.
-     *
-     * @param groupId The ID of the group whose events are requested.
+     * Observes all events that belong to the given group from local storage.
      */
-    suspend fun getAll(groupId: Long): List<Event>
+    fun observeAll(groupId: Long): Flow<List<Event>>
 
     /**
-     * Retrieves a single event by its unique identifier.
-     *
-     * @param id The ID of the event.
-     * @return The matching [Event], or null if no such event exists.
+     * Observes a single event by its unique identifier from local storage.
      */
-    suspend fun getById(id: Long): Event?
+    fun observeById(id: Long): Flow<Event?>
 
     /**
-     * Creates a new event for the specified group.
-     *
-     * @param groupId The ID of the group that owns the event.
-     * @param title The event title.
-     * @param possibleSlots All time slots that participants can vote for.
-     * @param description Optional descriptive text for the event.
-     * @param eventTypeId identifier for the event type.
-     *
-     * @return The newly created [Event].
+     * Observes event types for the given group from local storage.
+     */
+    fun observeEventTypes(groupId: Long): Flow<Map<Long, EventType>>
+
+    /**
+     * Creates a new event for the specified group and updates local storage.
      */
     suspend fun create(
         groupId: Long,
@@ -54,31 +44,25 @@ interface EventRepository {
     ): Event
 
     /**
-     * Deletes an event by its identifier.
-     *
-     * @param eventId The ID of the event to delete.
+     * Deletes an event by its identifier and updates local storage.
      */
     suspend fun delete(eventId: Long)
 
     /**
-     * Submits or updates a user's vote for the given event.
-     *
-     * Responsibilities of the implementation:
-     * - Persist the user's vote data
-     * - Update existing votes if the user has already voted
-     * - Determine whether all group members have voted
-     * - If all votes are present, automatically evaluate the final
-     *   time slot based on the event's [DecisionMode]
-     * - Update the event's status and final date accordingly
-     *
-     * @param eventId The ID of the event being voted on.
-     * @param voteDraft The user's vote submission data.
+     * Submits or updates a user's vote for the given event and updates local storage.
      */
     suspend fun submitVote(
         eventId: Long,
         voteDraft: Map<TimeSlot, Vote?>
     ) : Event
 
-    suspend fun getEventTypesForGroup(groupId: Long): Map<Long, EventType>
+    /**
+     * Adds a new event type and updates local storage.
+     */
     suspend fun addEventType(groupId: Long, type: String, color: Long) : EventType
+    
+    /**
+     * Refreshes the local cache for a specific group from the remote source.
+     */
+    suspend fun refresh(groupId: Long)
 }

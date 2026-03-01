@@ -29,6 +29,9 @@ interface EventDao {
 
     @Query("DELETE FROM events WHERE groupId = :groupId")
     suspend fun clearEventsByGroup(groupId: Long)
+    
+    @Query("DELETE FROM events WHERE groupId = :groupId AND id NOT IN (:ids)")
+    suspend fun deleteEventsNotIn(groupId: Long, ids: List<Long>)
 
     @Upsert
     suspend fun upsertEventType(type: EventTypeEntity)

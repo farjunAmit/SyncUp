@@ -4,6 +4,8 @@ import com.example.syncup.data.dto.EventCreateRequestDto
 import com.example.syncup.data.dto.EventTypeCreateRequestDto
 import com.example.syncup.data.dto.SubmitVoteRequestDto
 import com.example.syncup.data.dto.VoteDto
+import com.example.syncup.data.local.EventDao
+import com.example.syncup.data.mapper.toEntity
 import com.example.syncup.data.mapper.toEvent
 import com.example.syncup.data.mapper.toEventType
 import com.example.syncup.data.mapper.toTimeSlotDto
@@ -13,20 +15,29 @@ import com.example.syncup.data.model.events.EventType
 import com.example.syncup.data.model.events.TimeSlot
 import com.example.syncup.data.model.events.Vote
 import com.example.syncup.data.remote.event.EventRemoteDataSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DefaultEventRepository @Inject constructor(
-    private val eventRemoteDataSource: EventRemoteDataSource
+    private val eventRemoteDataSource: EventRemoteDataSource,
+    private val eventDao: EventDao
 ) : EventRepository {
 
-    override suspend fun getAll(groupId: Long): List<Event> {
-        val events = eventRemoteDataSource.getEvents(groupId)
-        return events.map { it.toEvent() }
+    override fun observeAll(groupId: Long): Flow<List<Event>> {
+        return eventDao.getEventsByGroup(groupId).map { entities ->
+            entities.map { it.toEvent() }
+        }
     }
 
-    override suspend fun getById(id: Long): Event? {
-        val event = eventRemoteDataSource.getEvent(id)
-        return event.toEvent()
+    override fun observeById(id: Long): Flow<Event?> {
+        return eventDao.getEventById(id).map { it?.toEvent() }
+    }
+
+    override fun observeEventTypes(groupId: Long): Flow<Map<Long, EventType>> {
+        return eventDao.getEventTypesByGroup(groupId).map { entities ->
+            entities.associate { it.id to it.toEventType() }
+        }
     }
 
     override suspend fun create(
@@ -44,12 +55,17 @@ class DefaultEventRepository @Inject constructor(
             eventTypeId = eventTypeId,
             possibleSlots = possibleSlots.map { it.toTimeSlotDto() }
         )
-        val event = eventRemoteDataSource.createEvent(groupId, eventCreateDto)
-        return event.toEvent()
+        val eventSummaryDto = eventRemoteDataSource.createEvent(groupId, eventCreateDto)
+        val eventDetailDto = eventRemoteDataSource.getEvent(eventSummaryDto.id)
+        val event = eventDetailDto.toEvent()
+        
+        eventDao.upsertEvent(event.toEntity())
+        return event
     }
 
     override suspend fun delete(eventId: Long) {
         eventRemoteDataSource.deleteEvent(eventId)
+        eventDao.deleteEventById(eventId)
     }
 
     override suspend fun submitVote(
@@ -60,13 +76,12 @@ class DefaultEventRepository @Inject constructor(
             eventId = eventId,
             votes = voteDraft.map { (slot, vote) -> VoteDto(slot.toTimeSlotDto(), vote) }
         )
-        val event = eventRemoteDataSource.submitVotes(submitVoteDto)
-        return event.toEvent()
-    }
-
-    override suspend fun getEventTypesForGroup(groupId: Long): Map<Long, EventType> {
-        val eventTypes = eventRemoteDataSource.getEventTypes(groupId)
-        return eventTypes.associateBy({ it.id }, { it.toEventType() })
+        val eventSummaryDto = eventRemoteDataSource.submitVotes(submitVoteDto)
+        val eventDetailDto = eventRemoteDataSource.getEvent(eventSummaryDto.id)
+        val event = eventDetailDto.toEvent()
+        
+        eventDao.upsertEvent(event.toEntity())
+        return event
     }
 
     override suspend fun addEventType(
@@ -79,7 +94,31 @@ class DefaultEventRepository @Inject constructor(
             type = type,
             color = color
         )
-        val eventType = eventRemoteDataSource.createEventType(eventCreateDto)
-        return eventType.toEventType()
+        val eventTypeDto = eventRemoteDataSource.createEventType(eventCreateDto)
+        val eventType = eventTypeDto.toEventType()
+        eventDao.upsertEventType(eventType.toEntity())
+        return eventType
+    }
+
+    override suspend fun refresh(groupId: Long) {
+        // Refresh Events
+        val remoteEvents = eventRemoteDataSource.getEvents(groupId)
+        val detailedEvents = remoteEvents.map { summary ->
+            eventRemoteDataSource.getEvent(summary.id).toEvent()
+        }
+        
+        if (detailedEvents.isEmpty()) {
+            eventDao.clearEventsByGroup(groupId)
+        } else {
+            eventDao.deleteEventsNotIn(groupId, detailedEvents.map { it.id })
+            eventDao.upsertEvents(detailedEvents.map { it.toEntity() })
+        }
+
+        // Refresh Event Types
+        val remoteTypes = eventRemoteDataSource.getEventTypes(groupId)
+        val eventTypeEntities = remoteTypes.map { it.toEventType().toEntity() }
+        
+        eventDao.clearEventTypesByGroup(groupId)
+        eventDao.upsertEventTypes(eventTypeEntities)
     }
 }
