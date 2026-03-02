@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.combine
 
 /**
  * GroupDetailViewModel
@@ -36,6 +38,7 @@ class GroupDetailViewModel @Inject constructor(
     private val groupRepo: GroupsRepository,
     private val eventRepo: EventRepository
 ) : ViewModel() {
+    private var eventsJob: Job? = null
     private val _uiState = MutableStateFlow(GroupDetailUiState())
     val uiState: StateFlow<GroupDetailUiState> = _uiState.asStateFlow()
     val groups: StateFlow<List<Group>> =
@@ -60,13 +63,30 @@ class GroupDetailViewModel @Inject constructor(
      * Loads the events of a specific group from the repository and updates the UI state.
      */
     fun loadEvents(groupId: Long) {
+        // Cancel any previous collector (e.g. when navigating between groups).
+        eventsJob?.cancel()
+
+        // Start collecting local data immediately.
+        eventsJob = viewModelScope.launch {
+            eventRepo
+                .observeAll(groupId)
+                .combine(eventRepo.observeEventTypes(groupId)) { events, eventTypes ->
+                    Triple(events, getScheduledEvents(events), eventTypes)
+                }
+                .collect { (events, scheduledEvents, eventTypes) ->
+                    _uiState.update { current ->
+                        current.copy(
+                            events = events,
+                            scheduledEvents = scheduledEvents,
+                            eventTypes = eventTypes
+                        )
+                    }
+                }
+        }
+
+        // Then refresh from server (local-first: UI shows cached data first, refresh updates Room).
         viewModelScope.launch {
-            val events = eventRepo.getAll(groupId)
-            val eventTypes = eventRepo.getEventTypesForGroup(groupId)
-            val scheduledEvents = getScheduledEvents(events)
-            _uiState.update { current ->
-                current.copy(events = events, scheduledEvents = scheduledEvents, eventTypes = eventTypes)
-            }
+            eventRepo.refresh(groupId)
         }
     }
 
@@ -75,11 +95,7 @@ class GroupDetailViewModel @Inject constructor(
      */
     fun deleteEvent(eventId: Long) {
         viewModelScope.launch {
-            val group = _uiState.value.group
-            if (group != null) {
-                eventRepo.delete(eventId)
-                loadEvents(group.id)
-            }
+            eventRepo.delete(eventId)
         }
     }
 
